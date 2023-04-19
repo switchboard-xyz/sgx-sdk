@@ -60,6 +60,8 @@ function azure_create_vm() {
         echo -e "${Red}VM_NAME was not provided${Color_Off}"
         return 1
     fi
+    local ssh_key_name="${2:-id_azure_rsa}"
+    local ssh_key_path="$HOME/.ssh/$ssh_key_name.pub"
 
     create_vm_response=$(az vm create \
         -n "$vm_name" \
@@ -69,6 +71,7 @@ function azure_create_vm() {
         --generate-ssh-keys \
         --location "$AZURE_VM_LOCATION" \
         --zone 2 \
+        --ssh-key-values "$ssh_key_path" \
         --image Canonical:0001-com-ubuntu-minimal-focal:minimal-20_04-lts-gen2:20.04.202303290)
     
     # Attempt to get the VM IP and add to our SSH known hosts

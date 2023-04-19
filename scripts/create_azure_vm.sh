@@ -68,7 +68,7 @@ if [ "$(azure_check_vm_exists "$AZURE_VM_NAME")" == "true" ]; then
     echo "Found an existing Azure VM ($AZURE_VM_NAME) ..."
 else
     echo "Creating a new Azure VM ($AZURE_VM_NAME) ..."
-    azure_create_vm "$AZURE_VM_NAME" "$SGX_IMG_NAME"
+    azure_create_vm "$AZURE_VM_NAME" "$AZURE_SSH_KEY"
 fi
 
 ############################################################
