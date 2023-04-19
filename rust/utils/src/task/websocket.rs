@@ -1,13 +1,16 @@
-use futures_util::{SinkExt, StreamExt};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::time::Duration;
 use tokio::sync::Mutex;
 use tokio::sync::RwLock;
-use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::WebSocketStream;
 use url::Url;
+
+use std::env;
+
+use futures_util::{future, pin_mut, StreamExt};
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
 
 use crate::json_parse_task;
 
@@ -58,49 +61,27 @@ impl WebSocket {
     }
 
     pub async fn start(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        loop {
-            let (ws_stream, _) = match tokio_tungstenite::connect_async(&self.url).await {
-                Ok(stream) => stream,
-                Err(e) => {
-                    if self.auto_reconnect {
-                        tokio::time::sleep(Duration::from_secs(5)).await;
-                        continue;
-                    } else {
-                        return Err(Box::new(e));
-                    }
-                }
-            };
+        let (stdin_tx, stdin_rx) = futures_channel::mpsc::unbounded();
+        tokio::spawn(read_stdin(stdin_tx));
 
-            // Store the WebSocketStream in the ws_stream field
-            {
-                let mut stream_write = self.ws_stream.write().await;
-                *stream_write = Some(ws_stream);
-            }
+        let (ws_stream, _) = connect_async(self.url.clone())
+            .await
+            .expect("Failed to connect");
 
-            // Handle the connection
-            self.handle_connection().await;
+        println!("WebSocket handshake has been successfully completed");
 
-            // If auto_reconnect is false, break the loop
-            if !self.auto_reconnect {
-                return Ok(());
-            }
-        }
-    }
+        let (write, read) = ws_stream.split();
 
-    async fn reconnect(&self) {
-        for (_, sub_def) in &self.subscriptions {
-            let message = Message::Text(sub_def.subscription.clone());
-            if let Some(ws_stream) = self.ws_stream.write().await.as_mut() {
-                ws_stream
-                    .send(message)
-                    .await
-                    .expect("Error sending subscription message");
-            }
-        }
-    }
+        let stdin_to_ws = stdin_rx.map(Ok).forward(write);
+        let ws_to_stdout = {
+            read.for_each(|message| async {
+                let data = message.unwrap().into_data();
+                tokio::io::stdout().write_all(&data).await.unwrap();
+            })
+        };
 
-    async fn handle_connection(&self) {
-        self.reconnect().await;
+        pin_mut!(stdin_to_ws, ws_to_stdout);
+        future::select(stdin_to_ws, ws_to_stdout).await;
 
         if let Some(read) = self.ws_stream.write().await.as_mut() {
             while let Some(message) = read.next().await {
@@ -143,15 +124,20 @@ impl WebSocket {
             }
         }
     }
+}
 
-    pub async fn close(&mut self) {
-        self.auto_reconnect = false;
-
-        if let Some(ws_stream) = self.ws_stream.write().await.as_mut() {
-            ws_stream.close(None).await.unwrap_or_else(|e| {
-                eprintln!("Error sending close message: {:?}", e);
-            });
-        }
+// Our helper method which will read data from stdin and send it along the
+// sender provided.
+async fn read_stdin(tx: futures_channel::mpsc::UnboundedSender<Message>) {
+    let mut stdin = tokio::io::stdin();
+    loop {
+        let mut buf = vec![0; 1024];
+        let n = match stdin.read(&mut buf).await {
+            Err(_) | Ok(0) => break,
+            Ok(n) => n,
+        };
+        buf.truncate(n);
+        tx.unbounded_send(Message::binary(buf)).unwrap();
     }
 
     async fn send_subscription(&self, sub_def: &ISubscriptionDefinition) {

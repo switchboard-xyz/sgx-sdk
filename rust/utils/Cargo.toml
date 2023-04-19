@@ -16,11 +16,12 @@ tungstenite = "0.19"
 tokio-tungstenite = {version="0.18", features = ["native-tls"]}
 url = "2.3.1"
 futures-util = "0.3.28"
+futures-channel = "0.3"
+futures = "0.3.28"
 
 # Optional dependencies
 solana-program = { version = "1.13", optional = true }
 anchor-lang = { version = "0.27.0", optional = true }
-futures = "0.3.28"
 
 [dev-dependencies]
 mockito = "^1.0.2"

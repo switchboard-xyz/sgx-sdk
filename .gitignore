@@ -169,3 +169,7 @@ lib/libs
 !.sgx/README.md
 
 measurement.txt
+
+.anchor
+.DS_Store
+
