@@ -21,7 +21,8 @@
   </h4>
 </div>
 
-> **Warning** > **This repo is in active development!** Expect breaking changes as the SGX SDK is developed.
+> **Warning**
+> <br /><strong>This repo is in active development!</strong> Expect breaking changes as the SGX SDK is developed.
 
 ## Setup
 
