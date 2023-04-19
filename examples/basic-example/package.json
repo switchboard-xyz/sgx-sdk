@@ -1,7 +1,9 @@
 {
   "name": "basic-example",
   "scripts": {
-    "pid": "solana-keygen pubkey target/deploy/basic_example-keypair.json",
+    "payer": "find ~/.config/solana/id.json || solana-keygen new -s --no-bip39-passphrase --outfile ~/.config/solana/id.json; echo \"$(solana-keygen pubkey ~/.config/solana/id.json)\"",
+    "pid": "find target/deploy/basic_example-keypair.json || solana-keygen new -s --no-bip39-passphrase --outfile target/deploy/basic_example-keypair.json; echo \"$(solana-keygen pubkey target/deploy/basic_example-keypair.json)\"",
+    "localnet": "shx mkdir -p .anchor/test-ledger || true; solana-test-validator -q -r --ledger .anchor/test-ledger --mint $(solana-keygen pubkey ~/.config/solana/id.json) --bind-address 0.0.0.0 --url https://api.devnet.solana.com --rpc-port 8899  --clone SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f `# programId` --clone 7nYabs9dUhvxYwdTnrWVBL9MYviKSfrEbdWCUbcnwkpF `# programDataAddress` --clone Fi8vncGpNKbq62gPo56G4toCehWNy77GgqGkTaAF5Lkk `# idlAddress` --clone CyZuD7RPDcrqCGbNvLCyqk6Py9cEZTKmNKujfPi3ynDd `# programState` --clone 7hkp1xfPBcD2t1vZMoWWQPzipHVcXeLAAaiGXdPSfDie `# switchboardVault`",
     "docker:build": "DOCKER_BUILDKIT=1 docker build -f ../../docker/Dockerfile.service -t basic-example --build-arg CARGO_NAME=basic-sgx-function ./sgx-function",
     "measurement": "pnpm run docker:build; id=$(docker run -it -d --rm basic-example bash); docker cp $id:/measurement.txt sgx-function/measurement.txt; docker kill $id; echo \"MR_ENCLAVE: $(cat sgx-function/measurement.txt)\"",
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
@@ -20,6 +22,7 @@
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.0.0",
     "typescript": "^4.3.5",
-    "prettier": "^2.6.2"
+    "prettier": "^2.6.2",
+    "shx": "^0.3.4"
   }
 }
