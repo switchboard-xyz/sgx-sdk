@@ -21,6 +21,8 @@
   </h4>
 </div>
 
+> **Warning** > **This repo is in active development!** Expect breaking changes as the SGX SDK is developed.
+
 ## Setup
 
 ```bash
@@ -29,7 +31,7 @@ pnpm build
 cargo build
 ```
 
-> ℹ️ **Note**
+> **Note**
 > This repo includes dependencies that require an SGX compatible machine to compile.
 
 ### Create SGX Virtual Machine
@@ -93,6 +95,13 @@ Optionally, you can open your VS Code User settings.json and add the following l
   ]
 }
 ```
+
+## Troubleshooting
+
+1. File a
+   [GitHub Issue](https://github.com/switchboard-xyz/sgx-sdk/issues/new)
+2. Ask a question in
+   [Discord #dev-support](https://discord.com/channels/841525135311634443/984343400377647144)
 
 ## Intel SGX SDK Overview
 
