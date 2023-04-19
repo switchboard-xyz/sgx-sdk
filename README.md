@@ -21,8 +21,7 @@
   </h4>
 </div>
 
-> **Warning**
-> <br /><strong>This repo is in active development!</strong> Expect breaking changes as the SGX SDK is developed.
+> **Warning** > <br /><strong>This repo is in active development!</strong> Expect breaking changes as the SGX SDK is developed.
 
 ## Setup
 
@@ -32,7 +31,7 @@ pnpm build
 cargo build
 ```
 
-> **Note**
+> **Note** <br />
 > This repo includes dependencies that require an SGX compatible machine to compile.
 
 ### Create SGX Virtual Machine
