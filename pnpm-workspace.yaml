@@ -1,0 +1,5 @@
+packages:
+  - "javascript/*"
+  - "examples/*"
+  - "lib/*"
+  - "rust/*"

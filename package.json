@@ -1,0 +1,42 @@
+{
+  "name": "@switchboard-xyz/sgx-sdk",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "build": "turbo run build",
+    "build:lib": "turbo run build:lib",
+    "build:rust": "cargo build",
+    "dev": "turbo run dev",
+    "rust:dev": "cargo watch -x run -p utils -w ./rust/utils",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "fix": "pnpm -r fix",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "turbo run build --filter=docs^... && changeset publish"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@changesets/cli": "^2.26.1",
+    "@commitlint/config-conventional": "^17.6.1",
+    "@types/node": "^18.15.11",
+    "commitlint": "^17.6.1",
+    "eslint": "^8.38.0",
+    "prettier": "^2.8.7",
+    "rimraf": "^5.0.0",
+    "ts-node": "^10.9.1",
+    "tsconfig": "workspace:*",
+    "turbo": "^1.9.1",
+    "typescript": "^5.0.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@7.17.0"
+}

@@ -1,0 +1,21 @@
+# syntax=docker/dockerfile:1.4
+FROM switchboardlabs/sgx-function AS builder
+
+ARG CARGO_NAME=app
+
+WORKDIR /home/root/sgx-oracle
+COPY . .
+
+# Build the release binary
+RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/home/root/sgx-oracle/target \
+    cargo build --release && \
+    mv /home/root/sgx-oracle/target/release/${CARGO_NAME} /sgx/app
+
+FROM switchboardlabs/sgx-function
+
+# Copy the binary
+WORKDIR /sgx
+COPY --from=builder /sgx/app /sgx/app
+
+# Get the measurement from the enclave
+RUN /get_measurement.sh

@@ -1,0 +1,6 @@
+{
+  "name": "solana-event-watcher",
+  "scripts": {
+    "docker:build": "DOCKER_BUILDKIT=1 docker build -f ../../docker/Dockerfile.service -t solana-event-watcher --build-arg CARGO_NAME=solana-event-watcher ."
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "basic-example",
+  "scripts": {
+    "docker:build": "DOCKER_BUILDKIT=1 docker build -f ../../docker/Dockerfile.service -t basic-example --build-arg CARGO_NAME=app .",
+    "measurement": "pnpm run docker:build; id=$(docker run -it -d --rm basic-example bash); docker cp $id:/measurement.txt measurement.txt; docker kill $id; echo \"MR_ENCLAVE: $(cat measurement.txt)\""
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "QuoteVerificationEnclave",
+  "scripts": {
+    "build:lib": "ar rs ../libs/libenclave_untrusted.a ./Enclave/Enclave_t.o ./Enclave/Enclave.o"
+  }
+}

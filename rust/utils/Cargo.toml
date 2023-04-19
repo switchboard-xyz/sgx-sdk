@@ -1,0 +1,26 @@
+[package]
+name = "switchboard-utils"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[features]
+solana = ["solana-program", "anchor-lang"]
+
+[dependencies]
+reqwest = { version = "0.11", features = ["json"] }
+tokio = { version = "1", features = ["full"] }
+jsonpath-rust = "0.3.0"
+serde_json = "1.0.96"
+tungstenite = "0.19"
+tokio-tungstenite = "0.18"
+url = "2.3.1"
+futures-util = "0.3.28"
+
+# Optional dependencies
+solana-program = { version = "1.13", optional = true }
+anchor-lang = { version = "0.27.0", optional = true }
+futures = "0.3.28"
+
+[dev-dependencies]
+mockito = "^1.0.2"
