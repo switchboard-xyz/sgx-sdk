@@ -100,7 +100,7 @@ function ssh_from_local_to_remote() {
     [[ -n "$VERBOSE" ]] && RSYNC_ARG_STRING="-aurlptz --progress --verbose"
 
     # Copy files from local machine to remote host
-    rsync $RSYNC_ARG_STRING --exclude='.git' --exclude='node_modules/' --exclude='target/' --exclude='.turbo/' "$LOCAL_DIR/" "$REMOTE_USER@$REMOTE_ADDR:$REMOTE_DIR/"
+    rsync $RSYNC_ARG_STRING --exclude='.git' --exclude='node_modules/' --exclude='target/' --exclude='.anchor/' --exclude='.turbo/' "$LOCAL_DIR/" "$REMOTE_USER@$REMOTE_ADDR:$REMOTE_DIR/"
 }
 
 function ssh_from_remote_to_local() {
@@ -113,7 +113,7 @@ function ssh_from_remote_to_local() {
     [[ -n "$VERBOSE" ]] && RSYNC_ARG_STRING="-aurlptz --progress --verbose"
 
     # Copy files from remote host to local machine
-    rsync $RSYNC_ARG_STRING --exclude='.git' --exclude='node_modules/' --exclude='target/' --exclude='.turbo/' "$REMOTE_USER@$REMOTE_ADDR:$REMOTE_DIR/" "$LOCAL_DIR/";
+    rsync $RSYNC_ARG_STRING --exclude='.git' --exclude='node_modules/' --exclude='target/' --exclude='.anchor/' --exclude='.turbo/' "$REMOTE_USER@$REMOTE_ADDR:$REMOTE_DIR/" "$LOCAL_DIR/";
 }
 
 function ssh_sync_files() {

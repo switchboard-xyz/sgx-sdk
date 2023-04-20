@@ -3,10 +3,17 @@ name = "basic-sgx-function"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 switchboard-attestation-client = "0.1.7"
+# switchboard-attestation-client = { path = "../../../rust/attestation-client" }
+
+# switchboard-utils = "*"
+switchboard-utils = { path = "../../../rust/utils" }
+
+weather-station = { path = "../programs/basic-example" }
+
 anchor-client = "0.27.0"
 solana-sdk = "1.15.2"
+
 tokio = "1.26.0"
 clokwerk = "0.4.0"
