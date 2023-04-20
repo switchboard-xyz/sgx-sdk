@@ -82,7 +82,6 @@ pub fn ecdsa_quote_verification(quote: &[u8], current_time: i64) -> bool {
                 println!("\tInfo: App: Verification completed successfully.");
             } else {
                 println!("\tWarning: App: Verification completed, but collateral is out of date based on 'expiration_check_date' you provided.");
-                return true; // TODO: DELETE THIS! WARN ERROR
                 return false;
             }
         }
