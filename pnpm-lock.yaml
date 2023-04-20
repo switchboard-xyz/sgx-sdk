@@ -68,6 +68,9 @@ importers:
       prettier:
         specifier: ^2.6.2
         version: 2.8.7
+      shx:
+        specifier: ^0.3.4
+        version: 0.3.4
       ts-mocha:
         specifier: ^10.0.0
         version: 10.0.0(mocha@9.0.3)

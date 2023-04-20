@@ -1,8 +1,8 @@
 [features]
-seeds = false
+seeds = true
 skip-lint = false
 [programs.localnet]
-basic_example = "B4tniotobWXRstYEAQHWX8RetNmBcMvKY1CFBkBN7pc2"
+basic_example = "BZ7ambpq5TN49KczyL7QEfyr2xmnz1ubAHqdSC5ywd5f"
 
 [registry]
 url = "https://api.apr.dev"
@@ -12,7 +12,7 @@ cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
-test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+test = "pnpm exec ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
 
 [test.validator]
 url = "https://api.devnet.solana.com"

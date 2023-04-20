@@ -6,16 +6,20 @@ cd "$HOME"
 
 export DEBIAN_FRONTEND=noninteractive
 
-sh -c "$(curl -sSfL https://release.solana.com/v1.15.2/install)"
-export PATH="/home/azureuser/.local/share/solana/install/active_release/bin:$PATH"
+if [ ! -x "$(command -v solana)" ]; then
+    sh -c "$(curl -sSfL https://release.solana.com/v1.15.2/install)"
+    export PATH="/home/azureuser/.local/share/solana/install/active_release/bin:$PATH"
+fi
 solana --version
 
-sudo apt-get update && sudo apt-get upgrade && sudo apt-get install -y pkg-config build-essential libudev-dev
-cargo install --git https://github.com/project-serum/anchor avm --locked --force
-avm install latest
-avm use latest
+if [ ! -x "$(command -v anchor)" ]; then
+    sudo apt-get update && sudo apt-get upgrade && sudo apt-get install -y pkg-config build-essential libudev-dev
+    cargo install --git https://github.com/project-serum/anchor avm --locked --force
+    avm install latest
+    avm use latest
+fi
 anchor --version
 
 # Setup keypair
-solana-keygen new --no-bip39-passphrase -o ~/.config/solana/id.json
+find ~/.config/solana/id.json || solana-keygen new --no-bip39-passphrase -o ~/.config/solana/id.json
  
