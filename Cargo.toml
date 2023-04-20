@@ -1,10 +1,13 @@
 [workspace]
 members = [
-  "rust/*"
+  "rust/*",
+  "examples/basic-example/programs/*",
+  "examples/basic-example/sgx-function"
 ]
-exclude = [
-  "examples/*"
-]
+
+# exclude = [
+#   "examples/*"
+# ]
 
 [profile.release]
 strip = true

@@ -6,13 +6,9 @@ use tokio::sync::RwLock;
 use tokio_tungstenite::WebSocketStream;
 use url::Url;
 
-use std::env;
-
 use futures_util::{future, pin_mut, StreamExt};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
-
-use crate::json_parse_task;
 
 pub type Filter = String;
 

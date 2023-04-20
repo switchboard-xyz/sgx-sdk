@@ -43,7 +43,7 @@ pub struct WeatherReport {
     pub temperature: f64,
     pub windspeed: f64,
     pub weathercode: u64,
-    pub timestamp: i64,
+    pub timestamp: u64,
 }
 
 #[account(zero_copy(unsafe))]

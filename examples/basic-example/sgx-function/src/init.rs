@@ -2,18 +2,12 @@ use crate::{AnchorClient, PID, VERIFIER_QUEUE};
 
 use std::sync::Arc;
 
-use anchor_client::solana_client::rpc_client::RpcClient;
 use anchor_client::solana_sdk::signature::Signer;
 use anchor_client::solana_sdk::signer::keypair::keypair_from_seed;
 use anchor_client::solana_sdk::signer::keypair::Keypair;
-use anchor_client::Client;
-use anchor_client::Cluster;
 use sbac::sgx::Sgx;
 use sbac::solana::*;
 
-use solana_sdk::commitment_config::CommitmentConfig;
-use solana_sdk::pubkey::Pubkey;
-use solana_sdk::signer::keypair::read_keypair_file;
 use switchboard_attestation_client as sbac;
 
 pub async fn solana_init_quote(anchor_client: &AnchorClient, payer: Arc<Keypair>) -> Arc<Keypair> {

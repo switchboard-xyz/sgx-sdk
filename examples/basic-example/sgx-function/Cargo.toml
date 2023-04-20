@@ -17,3 +17,4 @@ solana-sdk = "1.15.2"
 
 tokio = "1.26.0"
 clokwerk = "0.4.0"
+futures = "0.3.28"
