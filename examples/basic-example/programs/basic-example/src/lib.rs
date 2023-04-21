@@ -3,7 +3,7 @@ use anchor_lang::solana_program;
 
 declare_id!("BZ7ambpq5TN49KczyL7QEfyr2xmnz1ubAHqdSC5ywd5f");
 
-const WEATHER_SEED: &[u8] = b"WEATHERREPORT";
+pub const WEATHER_SEED: &[u8] = b"WEATHERREPORT";
 
 #[program]
 pub mod basic_example {

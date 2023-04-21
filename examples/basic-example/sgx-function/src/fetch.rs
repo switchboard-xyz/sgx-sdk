@@ -8,13 +8,13 @@ use futures::stream::FuturesUnordered;
 use std::time::Duration;
 use tokio::time::timeout;
 
-pub async fn fetch_weather_report() -> Result<Vec<weather_station::WeatherReport>, Error> {
+pub async fn fetch_weather_report() -> Result<[weather_station::WeatherReport; 4], Error> {
     // Might need to worry about rate limiting
     let meteo_sources = vec![
         "https://api.open-meteo.com/v1/forecast?latitude=40.7831&longitude=-73.9712&current_weather=true&temperature_unit=fahrenheit",
-        "https://api.open-meteo.com/v1/forecast?latitude=51.5072&longitude=-0.1276&current_weather=true&temperature_unit=fahrenheit",
-        "https://api.open-meteo.com/v1/forecast?latitude=22.3193&longitude=114.1694&current_weather=true&temperature_unit=fahrenheit",
-        "https://api.open-meteo.com/v1/forecast?latitude=37.7749&longitude=-122.4194&current_weather=true&temperature_unit=fahrenheit"
+        // "https://api.open-meteo.com/v1/forecast?latitude=51.5072&longitude=-0.1276&current_weather=true&temperature_unit=fahrenheit",
+        // "https://api.open-meteo.com/v1/forecast?latitude=22.3193&longitude=114.1694&current_weather=true&temperature_unit=fahrenheit",
+        // "https://api.open-meteo.com/v1/forecast?latitude=37.7749&longitude=-122.4194&current_weather=true&temperature_unit=fahrenheit"
     ];
 
     let tasks = meteo_sources
@@ -22,7 +22,7 @@ pub async fn fetch_weather_report() -> Result<Vec<weather_station::WeatherReport
         .map(|url| {
             tokio::spawn(async move {
                 let result = http_task(url, Some("$.current_weather.temperature")).await;
-                return result.unwrap_or_default();
+                result.unwrap_or_default()
             })
         })
         .collect::<FuturesUnordered<_>>();
@@ -35,13 +35,16 @@ pub async fn fetch_weather_report() -> Result<Vec<weather_station::WeatherReport
         .duration_since(UNIX_EPOCH)
         .expect("Time went backwards");
 
-    Ok(result
+    let reports_vec: Vec<weather_station::WeatherReport> = result
         .into_iter()
         .map(|r| weather_station::WeatherReport {
             temperature: r.unwrap_or_default().as_f64().unwrap_or_default(),
             timestamp: since_the_epoch.as_secs(),
             weathercode: 0,
-            windspeed: "f",
+            windspeed: 0.0,
         })
-        .collect())
+        .collect();
+    let mut reports = [weather_station::WeatherReport::default(); 4];
+    reports[..4].clone_from_slice(&reports_vec);
+    Ok(reports)
 }

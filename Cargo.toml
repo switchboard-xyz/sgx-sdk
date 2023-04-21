@@ -1,8 +1,6 @@
 [workspace]
 members = [
   "rust/*",
-  "examples/basic-example/programs/*",
-  "examples/basic-example/sgx-function"
 ]
 
 # exclude = [
