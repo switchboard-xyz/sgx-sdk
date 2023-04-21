@@ -1,5 +1,4 @@
-use crate::{AnchorClient, VERIFIER_QUEUE};
-
+use crate::AnchorClient;
 use std::sync::Arc;
 
 use anchor_client::solana_sdk::signature::Signer;
@@ -7,16 +6,21 @@ use anchor_client::solana_sdk::signer::keypair::keypair_from_seed;
 use anchor_client::solana_sdk::signer::keypair::Keypair;
 use sbac::sgx::Sgx;
 use sbac::solana::*;
+use solana_sdk::{pubkey, pubkey::Pubkey};
 
 use switchboard_attestation_client as sbac;
 
-pub async fn solana_init_quote(anchor_client: &AnchorClient, payer: Arc<Keypair>) -> Arc<Keypair> {
+const SWITCHBOARD_PID: Pubkey = pubkey!("SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f");
+
+const VERIFIER_QUEUE: Pubkey = pubkey!("4AnQSCo6YJmmYVq2BUHx5vfxoqktpBmTbDh1NurxShgN");
+
+pub async fn run_init_quote(client: Arc<AnchorClient>, payer: Arc<Keypair>) -> Arc<Keypair> {
     let mut randomness = [0; 32];
     Sgx::read_rand(&mut randomness).unwrap();
     let quote_kp = Arc::new(keypair_from_seed(&randomness).unwrap());
     let quote = Sgx::gramine_generate_quote(&quote_kp.pubkey().to_bytes()).unwrap();
     let quote_init_ixs = QuoteInitSimple::build(
-        anchor_client,
+        &client,
         QuoteInitSimpleArgs {
             quote: quote_kp.pubkey(),
             verifier_queue: VERIFIER_QUEUE,
@@ -26,7 +30,7 @@ pub async fn solana_init_quote(anchor_client: &AnchorClient, payer: Arc<Keypair>
         vec![&payer, &quote_kp],
     )
     .unwrap();
-    let rpc = anchor_client.program(PID).rpc();
+    let rpc = client.program(PID).rpc();
     let blockhash = rpc.get_latest_blockhash().unwrap();
     let mut sigs = Vec::new();
     for (i, ix) in quote_init_ixs.iter().enumerate() {
@@ -42,3 +46,5 @@ pub async fn solana_init_quote(anchor_client: &AnchorClient, payer: Arc<Keypair>
     }
     quote_kp
 }
+
+pub async fn run_heartbeat(client: Arc<AnchorClient>) {}
