@@ -8,6 +8,7 @@ Welcome to the Switchboard Attestation Program documentation! This guide aims to
   - [Table of Contents](#table-of-contents)
   - [Introduction to the Switchboard Attestation Program](#introduction-to-the-switchboard-attestation-program)
   - [Understanding SGX Attestation](#understanding-sgx-attestation)
+  - [SGX Runtime](#sgx-runtime)
   - [Key Components in the Attestation Process](#key-components-in-the-attestation-process)
   - [The Attestation Lifecycle](#the-attestation-lifecycle)
   - [Frequently Asked Questions](#frequently-asked-questions)
@@ -42,6 +43,10 @@ Intel Software Guard Extensions (SGX) provides a secure execution environment ca
 
 The Switchboard Attestation Program leverages SGX attestation to establish trust in oracle applications, offering a robust mechanism for verifying secure code execution within the Trusted Execution Environment (TEE).
 
+## SGX Runtime
+
+Switchboard services use Gramine to provide the runtime. Gramine enables SGX enclaves to function as if they were running on a standard operating system, handling system calls and other essential interactions.
+
 ## Key Components in the Attestation Process
 
 The Switchboard attestation process involves several components that work together to facilitate attestation and verification of SGX enclaves:
@@ -55,12 +60,13 @@ The Switchboard attestation process involves several components that work togeth
 The Switchboard Attestation Program follows a structured lifecycle to ensure the secure and trustworthy execution of code within the TEE:
 
 1. Initialize the ServiceQueueAccount
-2. Register MrEnclave measurements
-3. Create and link NodeAccount and PermissionAccount
-4. Enable necessary permissions
-5. Generate and store QuoteAccount
-6. Verify QuoteAccount's MrEnclave measurement
-7. Maintain an active and trustworthy SGX enclave through heartbeats
+2. Register permitted MrEnclave measurements
+3. Create NodeAccount and PermissionAccount
+4. Run an SGX Switchboard function, creates QuoteAccount from compiled binary
+5. QuoteAccount emits a request to the VerifierQueue associated with the ServiceQueue to verify its MrEnclave measurement
+6. The VerifierQueue verifies the MrEnclave measurement on-chain (attestation)
+7. The PermissionAccount associated with the NodeAccount has the permissions enabled
+8.  Maintain an active and trustworthy SGX enclave through heartbeats
 
 By adhering to this lifecycle, the Switchboard Attestation Program ensures the security, authenticity, and trustworthiness of SGX enclaves operating within the TEE.
 
