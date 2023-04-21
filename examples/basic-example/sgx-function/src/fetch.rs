@@ -12,9 +12,9 @@ pub async fn fetch_weather_report() -> Result<[weather_station::WeatherReport; 4
     // Might need to worry about rate limiting
     let meteo_sources = vec![
         "https://api.open-meteo.com/v1/forecast?latitude=40.7831&longitude=-73.9712&current_weather=true&temperature_unit=fahrenheit",
-        // "https://api.open-meteo.com/v1/forecast?latitude=51.5072&longitude=-0.1276&current_weather=true&temperature_unit=fahrenheit",
-        // "https://api.open-meteo.com/v1/forecast?latitude=22.3193&longitude=114.1694&current_weather=true&temperature_unit=fahrenheit",
-        // "https://api.open-meteo.com/v1/forecast?latitude=37.7749&longitude=-122.4194&current_weather=true&temperature_unit=fahrenheit"
+        "https://api.open-meteo.com/v1/forecast?latitude=51.5072&longitude=-0.1276&current_weather=true&temperature_unit=fahrenheit",
+        "https://api.open-meteo.com/v1/forecast?latitude=22.3193&longitude=114.1694&current_weather=true&temperature_unit=fahrenheit",
+        "https://api.open-meteo.com/v1/forecast?latitude=37.7749&longitude=-122.4194&current_weather=true&temperature_unit=fahrenheit"
     ];
 
     let tasks = meteo_sources
@@ -27,9 +27,10 @@ pub async fn fetch_weather_report() -> Result<[weather_station::WeatherReport; 4
         })
         .collect::<FuturesUnordered<_>>();
 
-    let result = timeout(Duration::from_secs(5), futures::future::join_all(tasks))
+    let result = timeout(Duration::from_secs(10), futures::future::join_all(tasks))
         .await
         .expect("failed to fetch all sources");
+
     let start = SystemTime::now();
     let since_the_epoch = start
         .duration_since(UNIX_EPOCH)

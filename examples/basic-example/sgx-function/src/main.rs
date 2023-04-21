@@ -1,4 +1,4 @@
-use anchor_client::solana_sdk::signer::keypair::Keypair;
+// use anchor_client::solana_sdk::signer::keypair::Keypair;
 use solana_sdk::commitment_config::CommitmentConfig;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signer::keypair::read_keypair_file;
@@ -15,7 +15,9 @@ pub mod switchboard;
 pub use fetch::*;
 pub use switchboard::*;
 
-type AnchorClient = anchor_client::Client<Arc<Keypair>>;
+pub type Keypair = Arc<anchor_client::solana_sdk::signer::keypair::Keypair>;
+pub type AnchorClient = Arc<anchor_client::Client<Keypair>>;
+pub type AnchorProgram = Arc<anchor_client::Program<Keypair>>;
 
 #[tokio::main(worker_threads = 12)]
 async fn main() {
@@ -25,36 +27,40 @@ async fn main() {
     let url = std::env::var("RPC_URL").unwrap();
     let wss_url = url.replace("https://", "wss://");
     let cluster = anchor_client::Cluster::Custom(url.clone(), wss_url.clone());
-    let payer = Arc::new(read_keypair_file(std::env::var("PAYER").unwrap()).unwrap());
-    let anchor_client = anchor_client::Client::new_with_options(
+    let payer: Keypair = Arc::new(read_keypair_file(std::env::var("PAYER").unwrap()).unwrap());
+    let client: AnchorClient = Arc::new(anchor_client::Client::new_with_options(
         cluster.clone(),
         payer.clone(),
         CommitmentConfig::processed(),
-    );
-    let client = Arc::new(anchor_client);
+    ));
+    let weather_program: AnchorProgram = Arc::new(client.program(weather_station::id()));
+    let switchboard_program: AnchorProgram = Arc::new(client.program(switchboard::PID));
 
-    let quotekp = switchboard::run_init_quote(client.clone(), payer.clone()).await;
+    let quotekp: Keypair = switchboard::run_init_quote(client.clone(), payer.clone()).await;
 
     let (station, _station_bump) =
         Pubkey::find_program_address(&[weather_station::WEATHER_SEED], &weather_station::id());
 
-    // TODO: Verify the station account has been created
+    let station_account: weather_station::WeatherStation = weather_program
+        .account(station)
+        .expect("station account should already be initialized");
+
+    log::info!("station: {}", station);
+    log::info!("authority: {}", station_account.authority);
+    log::info!("schema: {}", station_account.schema);
+    // log::info!("last_updated: {}", station_account.last_updated);
 
     let mut scheduler = AsyncScheduler::with_tz(chrono::Utc);
 
     // update the weather reports every 5 min
-    scheduler.every(5.minutes()).run(move || {
-        let my_cluster = cluster.clone();
-        let my_payer = payer.clone();
-        let my_quotekp = Arc::clone(&quotekp);
+    scheduler
+        .every(5.minutes())
+        .run(move || run_save_report(weather_program.clone(), station, quotekp.clone()));
 
-        run_save_report(station, my_cluster, my_payer, my_quotekp)
-    });
-
-    // TODO: Add heartbeat task
+    // heartbeat every 60 seconds
     scheduler
         .every(60.seconds())
-        .run(move || switchboard::run_heartbeat(client.clone()));
+        .run(move || switchboard::run_heartbeat(switchboard_program.clone()));
 
     // TODO: Add quote publish task every 24 hrs ?? (Might not be needed)
 
@@ -64,12 +70,7 @@ async fn main() {
     }
 }
 
-pub async fn run_save_report(
-    station: Pubkey,
-    cluster: anchor_client::Cluster,
-    payer: Arc<Keypair>,
-    quotekp: Arc<Keypair>,
-) {
+pub async fn run_save_report(program: AnchorProgram, station: Pubkey, quotekp: Keypair) {
     // fetch reports
     let report_result = fetch_weather_report().await;
     if report_result.is_err() {
@@ -79,9 +80,6 @@ pub async fn run_save_report(
     }
 
     // save reports
-    let client =
-        anchor_client::Client::new_with_options(cluster, payer, CommitmentConfig::processed());
-    let program = client.program(weather_station::id());
     match program
         .request()
         .signer(quotekp.deref())

@@ -1,20 +1,19 @@
-use crate::AnchorClient;
+use crate::{AnchorClient, Keypair, AnchorProgram};
 use std::sync::Arc;
 
 use anchor_client::solana_sdk::signature::Signer;
 use anchor_client::solana_sdk::signer::keypair::keypair_from_seed;
-use anchor_client::solana_sdk::signer::keypair::Keypair;
 use sbac::sgx::Sgx;
 use sbac::solana::*;
 use solana_sdk::{pubkey, pubkey::Pubkey};
 
 use switchboard_attestation_client as sbac;
 
-const SWITCHBOARD_PID: Pubkey = pubkey!("SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f");
+pub const PID: Pubkey = pubkey!("SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f");
 
 const VERIFIER_QUEUE: Pubkey = pubkey!("4AnQSCo6YJmmYVq2BUHx5vfxoqktpBmTbDh1NurxShgN");
 
-pub async fn run_init_quote(client: Arc<AnchorClient>, payer: Arc<Keypair>) -> Arc<Keypair> {
+pub async fn run_init_quote(client: AnchorClient, payer: Keypair) -> Keypair {
     let mut randomness = [0; 32];
     Sgx::read_rand(&mut randomness).unwrap();
     let quote_kp = Arc::new(keypair_from_seed(&randomness).unwrap());
@@ -47,4 +46,4 @@ pub async fn run_init_quote(client: Arc<AnchorClient>, payer: Arc<Keypair>) -> A
     quote_kp
 }
 
-pub async fn run_heartbeat(client: Arc<AnchorClient>) {}
+pub async fn run_heartbeat(program: AnchorProgram) {}

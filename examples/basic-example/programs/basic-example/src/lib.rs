@@ -46,6 +46,7 @@ pub struct WeatherReport {
     pub timestamp: u64,
 }
 
+#[repr(packed)]
 #[account(zero_copy(unsafe))]
 pub struct WeatherStation {
     pub bump: u8,
