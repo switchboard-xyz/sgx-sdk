@@ -17,7 +17,7 @@
 
 ## Introduction to the Switchboard Attestation Program
 
-The Switchboard Attestation Program is a Solana contract that verifies attestation quotes on-chain to grant or revoke oracle permissions. Switchboard oracles are required to submit a quote on-chain every 7 days or have their permissions revoked.
+The Switchboard Attestation Program is a Solana contract that verifies attestation quotes on-chain to grant or revoke oracle permissions. Switchboard oracles are required to submit a quote on-chain every 7 days (or configurable by queue), and if not they will have their permissions revoked. The queue manages a set of valid MrEnclave measurements representing
 
 The Switchboard Attestation Program is a vital component of the Switchboard V3 ecosystem, aiming to enhance the security, trust, and decentralization of oracle services provided by Switchboard. The program leverages the power of Trusted Execution Environments (TEEs) to create a secure, verifiable, and trustless environment for oracles to operate within.
 
