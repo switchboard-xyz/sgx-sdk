@@ -116,8 +116,9 @@ impl WebSocket {
                     if let Ok(value) = serde_json::from_str::<Value>(&text) {
                         for (id, definition) in &self.subscriptions {
                             let json_path =
-                                json_parse_task(value.clone(), definition.filter.as_str())
-                                    .unwrap_or(Value::Null);
+                                json_parse_task(value.clone(), definition.filter.as_str());
+
+                            let json_path = json_path.unwrap_or(Value::Null);
                             if json_path.is_null() {
                                 return;
                             }
@@ -134,6 +135,7 @@ impl WebSocket {
                                     data: value.clone(),
                                 },
                             );
+
                             return;
                         }
                     }
@@ -171,88 +173,93 @@ impl WebSocket {
 
     pub async fn get_cached_value(&self, id: String) -> Option<Value> {
         let cache = self.cache.lock().await;
+
         let value = cache.get(&id).cloned();
         if value.is_none() {
             return None;
         }
+
         Some(value.unwrap().data)
     }
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use crate::error::Error;
-//     use futures_util::{SinkExt, StreamExt};
-//     use serde_json::Value;
-//     use std::str::FromStr;
-//     use tokio::net::TcpListener;
-//     use tokio_tungstenite::accept_async;
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::error::Error;
+    use futures_util::{SinkExt, StreamExt};
+    use serde_json::Value;
+    use std::str::FromStr;
+    use tokio::net::TcpListener;
+    use tokio_tungstenite::accept_async;
 
-//     const WS_SERVER_URL: &str = "ws://localhost:12345";
+    const WS_SERVER_URL: &str = "ws://localhost:12345";
 
-//     const json_string: &str = r#"{"symbol":"SOLUSDT","price":"25.36000000"}"#;
+    const JSON_STRING: &str = r#"{"symbol":"SOLUSDT","price":"25.36000000"}"#;
 
-//     #[tokio::test]
-//     async fn test_websocket() {
-//         // Start a WebSocket server
-//         tokio::spawn(async move {
-//             let listener = TcpListener::bind("127.0.0.1:12345").await.unwrap();
-//             let (stream, _) = listener.accept().await.unwrap();
-//             let mut ws = accept_async(stream).await.unwrap();
-//             let mut is_subscribed = false;
+    #[tokio::test]
+    async fn test_websocket() {
+        // Start a WebSocket server
+        tokio::spawn(async move {
+            let listener = TcpListener::bind("127.0.0.1:12345").await.unwrap();
+            let (stream, _) = listener.accept().await.unwrap();
+            let mut ws = accept_async(stream).await.unwrap();
+            let mut is_subscribed = false;
 
-//             while let Some(Ok(message)) = ws.next().await {
-//                 if message.is_text() {
-//                     let text = message.to_text().unwrap();
-//                     if let Ok(json_value) = serde_json::from_str::<Value>(&text) {
-//                         // Check for the subscription JSON object
-//                         if json_value["ticket"].is_string() {
-//                             is_subscribed = true;
-//                             ws.send(tokio_tungstenite::tungstenite::Message::text("Subscribed"))
-//                                 .await
-//                                 .unwrap();
-//                         }
-//                     }
-//                 }
+            while let Some(Ok(message)) = ws.next().await {
+                if message.is_text() {
+                    let text = message.to_text().unwrap();
+                    if let Ok(json_value) = serde_json::from_str::<Value>(&text) {
+                        // Check for the subscription JSON object
+                        if json_value["symbol"].is_string() {
+                            is_subscribed = true;
+                            ws.send(tokio_tungstenite::tungstenite::Message::text("Subscribed"))
+                                .await
+                                .unwrap();
+                        }
+                    }
+                }
 
-//                 if is_subscribed {
-//                     // Send the static value 8 to the client every 100 ms
-//                     ws.send(tokio_tungstenite::tungstenite::Message::text("8"))
-//                         .await
-//                         .unwrap();
-//                     tokio::time::sleep(Duration::from_millis(100)).await;
-//                 }
-//             }
-//         });
+                if is_subscribed {
+                    // Send the static value 8 to the client every 100 ms
 
-//         // Wait for the server to start
-//         tokio::time::sleep(Duration::from_secs(1)).await;
+                    ws.send(tokio_tungstenite::tungstenite::Message::text(JSON_STRING))
+                        .await
+                        .unwrap();
+                    tokio::time::sleep(Duration::from_millis(100)).await;
+                }
+            }
+        });
 
-//         let sol_subscription = r#"{"symbol": "SOLUSDT"}"#.to_string();
-//         let mut subscriptions = HashMap::new();
-//         subscriptions.insert(
-//             "SOL".to_string(),
-//             ISubscriptionDefinition {
-//                 subscription: sol_subscription,
-//                 filter: "$.price".to_string(),
-//                 max_age_seconds: 30,
-//             },
-//         );
-//         let websocket = WebSocket::new(WS_SERVER_URL, subscriptions, false).unwrap();
-//         let start_websocket_result = websocket.run().await;
-//         assert!(start_websocket_result.is_ok());
+        // Wait for the server to start
+        tokio::time::sleep(Duration::from_secs(1)).await;
 
-//         let (ws_stream, _) = tokio_tungstenite::connect_async(&websocket.url)
-//             .await
-//             .unwrap();
-//         let (mut write, read) = ws_stream.split();
+        let sol_subscription = r#"{"symbol": "SOLUSDT"}"#.to_string();
+        let mut subscriptions = HashMap::new();
 
-//         // Wait 1 seconds after sending the subscription
-//         tokio::time::sleep(Duration::from_secs(1)).await;
+        let mut websocket = WebSocket::new(WS_SERVER_URL, subscriptions.clone(), false);
 
-//         // Read the cache and assert it is 8
-//         let cached_value = websocket.get_cached_value("SOL".to_string()).await.unwrap();
-//         assert_eq!(cached_value, Value::String("8".to_string()));
-//     }
-// }
+        websocket
+            .add_subscription(ISubscriptionDefinition {
+                subscription: sol_subscription.clone(),
+                filter: "$.price".to_string(),
+                max_age_seconds: 30,
+            })
+            .await;
+        let start_websocket_result = websocket.start().await;
+
+        assert!(start_websocket_result.is_ok());
+
+        // Wait 1 seconds after sending the subscription
+        tokio::time::sleep(Duration::from_secs(1)).await;
+
+        // Read the cache and assert it is 8
+
+        let cached_value = websocket.get_cached_value(sol_subscription).await.unwrap();
+
+        assert_eq!(
+            cached_value,
+            serde_json::from_str::<Value>(JSON_STRING).unwrap()
+        );
+    }
+}

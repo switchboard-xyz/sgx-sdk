@@ -13,7 +13,7 @@ tokio = { version = "1", features = ["full"] }
 jsonpath-rust = "0.3.0"
 serde_json = "1.0.96"
 tungstenite = "0.19"
-tokio-tungstenite = "0.18"
+tokio-tungstenite = {version="0.18", features = ["native-tls"]}
 url = "2.3.1"
 futures-util = "0.3.28"
 
