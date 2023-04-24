@@ -36,38 +36,28 @@ pub struct WebSocket {
     pub url: Url,
     pub subscriptions: HashMap<String, ISubscriptionDefinition>,
     pub cache: Arc<Mutex<HashMap<String, CachedWebsocketMessage>>>,
-    pub auto_reconnect: bool,
     pub ws_stream: Arc<
         RwLock<Option<WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>>>,
     >,
 }
 
 impl WebSocket {
-    pub fn new(
-        url: &str,
-        subscriptions: HashMap<String, ISubscriptionDefinition>,
-        auto_reconnect: bool,
-    ) -> Self {
+    pub fn new(url: &str, subscriptions: HashMap<String, ISubscriptionDefinition>) -> Self {
         WebSocket {
             subscriptions,
-            auto_reconnect,
             url: Url::parse(url).unwrap(),
             cache: Arc::new(Mutex::new(HashMap::new())),
             ws_stream: Arc::new(RwLock::new(None)),
         }
     }
 
-    pub async fn start(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn start(&mut self) -> Result<(), Box<dyn std::error::Error, dyn s\ Send>> {
         loop {
             let (ws_stream, _) = match tokio_tungstenite::connect_async(&self.url).await {
                 Ok(stream) => stream,
                 Err(e) => {
-                    if self.auto_reconnect {
-                        tokio::time::sleep(Duration::from_secs(5)).await;
-                        continue;
-                    } else {
-                        return Err(Box::new(e));
-                    }
+                    tokio::time::sleep(Duration::from_secs(5)).await;
+                    continue;
                 }
             };
 
@@ -79,11 +69,6 @@ impl WebSocket {
 
             // Handle the connection
             self.handle_connection().await;
-
-            // If auto_reconnect is false, break the loop
-            if !self.auto_reconnect {
-                return Ok(());
-            }
         }
     }
 
@@ -140,9 +125,15 @@ impl WebSocket {
                         eprintln!("WebSocket error: Frame message type not supported");
                         break;
                     }
-                    Message::Ping(_data) => {
-                        eprintln!("WebSocket error: Ping message type not supported");
-                        break;
+                    Message::Ping(data) => {
+                        if let Some(ws_stream) = self.ws_stream.write().await.as_mut() {
+                            ws_stream
+                                .send(Message::Pong(data))
+                                .await
+                                .unwrap_or_else(|e| {
+                                    eprintln!("Error sending pong message: {:?}", e);
+                                });
+                        }
                     }
                     Message::Pong(_data) => {
                         eprintln!("WebSocket error: Pong message type not supported");
@@ -157,8 +148,6 @@ impl WebSocket {
     }
 
     pub async fn close(&mut self) {
-        self.auto_reconnect = false;
-
         if let Some(ws_stream) = self.ws_stream.write().await.as_mut() {
             ws_stream.close(None).await.unwrap_or_else(|e| {
                 eprintln!("Error sending close message: {:?}", e);
@@ -207,7 +196,7 @@ mod tests {
     #[tokio::test]
     async fn test_websocket() {
         // Start a WebSocket server
-        tokio::spawn(async move {
+        let websocket_server = tokio::spawn(async move {
             let listener = TcpListener::bind("127.0.0.1:12345").await.unwrap();
             let (stream, _) = listener.accept().await.unwrap();
             let mut ws = accept_async(stream).await.unwrap();
@@ -244,7 +233,7 @@ mod tests {
         let sol_subscription = r#"{"symbol": "SOLUSDT"}"#.to_string();
         let subscriptions = HashMap::new();
 
-        let mut websocket = WebSocket::new(WS_SERVER_URL, subscriptions.clone(), true);
+        let mut websocket = WebSocket::new(WS_SERVER_URL, subscriptions.clone());
 
         websocket
             .add_subscription(ISubscriptionDefinition {
@@ -253,9 +242,9 @@ mod tests {
                 max_age_seconds: 30,
             })
             .await;
-        let start_websocket_result = websocket.start().await;
+        let websocket_handle = tokio::spawn(async move { websocket.start().await });
 
-        assert!(start_websocket_result.is_ok());
+        // assert!(websocket_handle.is_ok());
 
         // Wait 1 seconds after sending the subscription
         tokio::time::sleep(Duration::from_secs(1)).await;
@@ -272,5 +261,6 @@ mod tests {
         println!("closing websocket");
 
         websocket.close().await;
+        let _ = websocket_handle.await; // Wait for the WebSocket to close
     }
 }
