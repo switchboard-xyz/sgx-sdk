@@ -19,6 +19,16 @@ export type {
   QueueSendRequestArgs,
   QueueSendRequestAccounts,
 } from './queueSendRequest';
+export { queueAddMrEnclave } from './queueAddMrEnclave';
+export type {
+  QueueAddMrEnclaveArgs,
+  QueueAddMrEnclaveAccounts,
+} from './queueAddMrEnclave';
+export { queueRemoveMrEnclave } from './queueRemoveMrEnclave';
+export type {
+  QueueRemoveMrEnclaveArgs,
+  QueueRemoveMrEnclaveAccounts,
+} from './queueRemoveMrEnclave';
 export { permissionInit } from './permissionInit';
 export type {
   PermissionInitArgs,
