@@ -32,5 +32,6 @@ address = "CyZuD7RPDcrqCGbNvLCyqk6Py9cEZTKmNKujfPi3ynDd"
 [[test.validator.clone]] # sbv2 devnet tokenVault
 address = "7hkp1xfPBcD2t1vZMoWWQPzipHVcXeLAAaiGXdPSfDie"
 
-[[test.validator.clone]] # sbv2 SOL/USD Feed
-address="GvDMxPzN1sCj7L26YDK2HnMRXEQmQ2aemov8YBtPS7vR"
+[[test.validator.clone]] # sbv3 quoteVerifier
+address = "Hxfwq7cxss4Ef9iDvaLb617dhageGyNWbDLLrg2sdQgT"
+

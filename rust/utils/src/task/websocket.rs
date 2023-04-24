@@ -123,7 +123,7 @@ impl WebSocket {
                                 || (json_path.is_array()
                                     && json_path.as_array().unwrap().is_empty())
                             {
-                                return;
+                                continue;
                             }
 
                             let mut cache = self.cache.lock().await;
@@ -135,7 +135,7 @@ impl WebSocket {
                                 },
                             );
 
-                            return;
+                            break;
                         }
                     }
                 }

@@ -62,7 +62,7 @@ pub struct Initialize<'info> {
         init,
         space = 8 + std::mem::size_of::<WeatherStation>(),
         payer = payer,
-        seeds = [WEATHER_SEED],
+        seeds = [WEATHER_SEED], 
         bump
     )]
     pub station: AccountLoader<'info, WeatherStation>,
@@ -88,7 +88,7 @@ pub struct ReportParams {
 pub struct Report<'info> {
     #[account(
         mut,
-        seeds = [WEATHER_SEED],
+        seeds = [WEATHER_SEED], 
         bump = station.load()?.bump
     )]
     pub station: AccountLoader<'info, WeatherStation>,

@@ -1,4 +1,4 @@
-use crate::{AnchorClient, Keypair, AnchorProgram};
+use crate::{AnchorClient, AnchorProgram, Keypair};
 use std::sync::Arc;
 
 use anchor_client::solana_sdk::signature::Signer;

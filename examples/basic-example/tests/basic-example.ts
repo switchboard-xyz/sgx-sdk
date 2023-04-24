@@ -38,13 +38,14 @@ describe("basic-example", () => {
   const program = anchor.workspace.BasicExample as Program<BasicExample>,
     stationSeed = anchor.utils.bytes.utf8.encode("WEATHERREPORT");
 
-  let stationPubkey: anchor.web3.PublicKey;
-
-  before(async () => {
-    [stationPubkey] = anchor.web3.PublicKey.findProgramAddressSync(
+  let [stationPubkey, stationBump] =
+    anchor.web3.PublicKey.findProgramAddressSync(
       [stationSeed],
       program.programId
     );
+
+  before(async () => {
+    // create switchboard queue
   });
 
   it("Is initialized!", async () => {
