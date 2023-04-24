@@ -46,21 +46,33 @@ export type {
   QuoteInitParamsFields,
   QuoteInitParamsJSON,
 } from './QuoteInitParams';
+export { QuoteInitSimpleParams } from './QuoteInitSimpleParams';
+export type {
+  QuoteInitSimpleParamsFields,
+  QuoteInitSimpleParamsJSON,
+} from './QuoteInitSimpleParams';
 export { QuoteVerifyParams } from './QuoteVerifyParams';
 export type {
   QuoteVerifyParamsFields,
   QuoteVerifyParamsJSON,
 } from './QuoteVerifyParams';
+export { QuoteVerifySimpleParams } from './QuoteVerifySimpleParams';
+export type {
+  QuoteVerifySimpleParamsFields,
+  QuoteVerifySimpleParamsJSON,
+} from './QuoteVerifySimpleParams';
 export { VerificationStatus };
 
 export type VerificationStatusKind =
   | VerificationStatus.VerificationPending
   | VerificationStatus.VerificationFailure
-  | VerificationStatus.VerificationSuccess;
+  | VerificationStatus.VerificationSuccess
+  | VerificationStatus.VerificationOverride;
 export type VerificationStatusJSON =
   | VerificationStatus.VerificationPendingJSON
   | VerificationStatus.VerificationFailureJSON
-  | VerificationStatus.VerificationSuccessJSON;
+  | VerificationStatus.VerificationSuccessJSON
+  | VerificationStatus.VerificationOverrideJSON;
 
 export { SwitchboardPermission };
 

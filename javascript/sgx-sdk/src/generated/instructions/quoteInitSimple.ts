@@ -8,33 +8,39 @@ import { BN } from '@switchboard-xyz/common'; // eslint-disable-line @typescript
 import * as borsh from '@coral-xyz/borsh'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as types from '../types'; // eslint-disable-line @typescript-eslint/no-unused-vars
 
-export interface QueueAddMrSignerArgs {
-  params: types.QueueAddMrEnclaveParamsFields;
+export interface QuoteInitSimpleArgs {
+  params: types.QuoteInitSimpleParamsFields;
 }
 
-export interface QueueAddMrSignerAccounts {
-  queue: PublicKey;
+export interface QuoteInitSimpleAccounts {
+  quote: PublicKey;
+  verifierQueue: PublicKey;
   authority: PublicKey;
+  payer: PublicKey;
+  systemProgram: PublicKey;
 }
 
 export const layout = borsh.struct([
-  types.QueueAddMrEnclaveParams.layout('params'),
+  types.QuoteInitSimpleParams.layout('params'),
 ]);
 
-export function queueAddMrSigner(
+export function quoteInitSimple(
   program: SwitchboardQuoteProgram,
-  args: QueueAddMrSignerArgs,
-  accounts: QueueAddMrSignerAccounts
+  args: QuoteInitSimpleArgs,
+  accounts: QuoteInitSimpleAccounts
 ) {
   const keys: Array<AccountMeta> = [
-    { pubkey: accounts.queue, isSigner: false, isWritable: true },
+    { pubkey: accounts.quote, isSigner: true, isWritable: true },
+    { pubkey: accounts.verifierQueue, isSigner: false, isWritable: true },
     { pubkey: accounts.authority, isSigner: true, isWritable: false },
+    { pubkey: accounts.payer, isSigner: true, isWritable: true },
+    { pubkey: accounts.systemProgram, isSigner: false, isWritable: false },
   ];
-  const identifier = Buffer.from([125, 221, 90, 120, 58, 252, 69, 99]);
+  const identifier = Buffer.from([179, 177, 36, 91, 221, 238, 253, 151]);
   const buffer = Buffer.alloc(1000);
   const len = layout.encode(
     {
-      params: types.QueueAddMrEnclaveParams.toEncodable(args.params),
+      params: types.QuoteInitSimpleParams.toEncodable(args.params),
     },
     buffer
   );

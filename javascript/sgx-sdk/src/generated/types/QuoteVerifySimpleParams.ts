@@ -4,18 +4,18 @@ import { BN } from '@switchboard-xyz/common'; // eslint-disable-line @typescript
 import * as types from '../types'; // eslint-disable-line @typescript-eslint/no-unused-vars
 import * as borsh from '@coral-xyz/borsh';
 
-export interface QuoteVerifyParamsFields {
+export interface QuoteVerifySimpleParamsFields {
   timestamp: BN;
 }
 
-export interface QuoteVerifyParamsJSON {
+export interface QuoteVerifySimpleParamsJSON {
   timestamp: string;
 }
 
-export class QuoteVerifyParams {
+export class QuoteVerifySimpleParams {
   readonly timestamp: BN;
 
-  constructor(fields: QuoteVerifyParamsFields) {
+  constructor(fields: QuoteVerifySimpleParamsFields) {
     this.timestamp = fields.timestamp;
   }
 
@@ -25,30 +25,30 @@ export class QuoteVerifyParams {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static fromDecoded(obj: any) {
-    return new QuoteVerifyParams({
+    return new QuoteVerifySimpleParams({
       timestamp: obj.timestamp,
     });
   }
 
-  static toEncodable(fields: QuoteVerifyParamsFields) {
+  static toEncodable(fields: QuoteVerifySimpleParamsFields) {
     return {
       timestamp: fields.timestamp,
     };
   }
 
-  toJSON(): QuoteVerifyParamsJSON {
+  toJSON(): QuoteVerifySimpleParamsJSON {
     return {
       timestamp: this.timestamp.toString(),
     };
   }
 
-  static fromJSON(obj: QuoteVerifyParamsJSON): QuoteVerifyParams {
-    return new QuoteVerifyParams({
+  static fromJSON(obj: QuoteVerifySimpleParamsJSON): QuoteVerifySimpleParams {
+    return new QuoteVerifySimpleParams({
       timestamp: new BN(obj.timestamp),
     });
   }
 
   toEncodable() {
-    return QuoteVerifyParams.toEncodable(this);
+    return QuoteVerifySimpleParams.toEncodable(this);
   }
 }
