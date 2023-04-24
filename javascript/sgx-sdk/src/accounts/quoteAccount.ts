@@ -13,6 +13,7 @@ import { TransactionObject } from '../TransactionObject';
 import { Account } from './account';
 import { NodeAccount } from './nodeAccount';
 import { QueueAccount } from './queueAccount';
+import { BN } from '@switchboard-xyz/common';
 
 /**
  * Data: {@linkcode types.QuoteAccountData}
@@ -76,6 +77,7 @@ export class QuoteAccount extends Account<types.QuoteAccountData> {
             {
               quote: keypair.publicKey,
               queue: queueAccount.publicKey,
+              queueAuthority: queue.authority,
               verifierQueue: queue.verifierQueue,
               node: nodeAccount.publicKey,
               authority: node.authority,
@@ -127,16 +129,20 @@ export class QuoteAccount extends Account<types.QuoteAccountData> {
           this.program,
           {
             params: {
-              queueIdx: params.queueIdx,
+              // queueIdx: params.queueIdx,
+              timestamp: new BN(0),
             },
           },
           {
             quote: this.publicKey,
             queue: data.queue,
+            // TODO: Update
             verifierQueue: PublicKey.default,
+            // TODO: Update
             verifierNode: PublicKey.default,
-            verifiee: PublicKey.default,
-            authority: queue.authority,
+            // TODO: Update
+            node: PublicKey.default,
+            verifierAuthority: queue.authority,
           }
         ),
       ],

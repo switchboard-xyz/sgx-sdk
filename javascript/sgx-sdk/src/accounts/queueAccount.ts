@@ -8,7 +8,7 @@ import {
 import { BN } from '@switchboard-xyz/common';
 import * as errors from '../errors';
 import * as types from '../generated';
-import { queueAddMrSigner, queueRemoveMrSigner } from '../generated';
+// import { queueAddMrSigner, queueRemoveMrSigner } from '../generated';
 import { SwitchboardQuoteProgram } from '../SwitchboardQuoteProgram';
 import { TransactionObject } from '../TransactionObject';
 import { Account, OnAccountChangeCallback } from './account';
@@ -83,15 +83,13 @@ export class QueueAccount extends Account<types.ServiceQueueAccountData> {
       program,
       {
         params: {
-          allowAuthorityOverrideAfter: new BN(
-            params.allowAuthorityOverrideAfter
-          ),
+          allowAuthorityOverrideAfter: params.allowAuthorityOverrideAfter,
           requireAuthorityHeartbeatPermission:
             params.requireAuthorityHeartbeatPermission ?? false,
           requireUsagePermissions: params.requireUsagePermissions ?? false,
-          maxQuoteVerificationAge: new BN(params.maxQuoteVerificationAge),
+          maxQuoteVerificationAge: params.maxQuoteVerificationAge,
           reward: params.reward,
-          nodeTimeout: new BN(params.nodeTimeout),
+          nodeTimeout: params.nodeTimeout,
         },
       },
       {
@@ -145,7 +143,7 @@ export class QueueAccount extends Account<types.ServiceQueueAccountData> {
     return new TransactionObject(
       payer,
       [
-        queueAddMrSigner(
+        types.queueAddMrEnclave(
           this.program,
           { params: { mrEnclave: [...new Uint8Array(params.mrEnclave)] } },
           {
@@ -178,7 +176,7 @@ export class QueueAccount extends Account<types.ServiceQueueAccountData> {
     return new TransactionObject(
       payer,
       [
-        queueRemoveMrSigner(
+        types.queueRemoveMrEnclave(
           this.program,
           { params: { mrEnclave: [...new Uint8Array(params.mrEnclave)] } },
           {
