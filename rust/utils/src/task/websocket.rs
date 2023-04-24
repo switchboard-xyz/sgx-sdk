@@ -36,28 +36,38 @@ pub struct WebSocket {
     pub url: Url,
     pub subscriptions: HashMap<String, ISubscriptionDefinition>,
     pub cache: Arc<Mutex<HashMap<String, CachedWebsocketMessage>>>,
+    pub auto_reconnect: bool,
     pub ws_stream: Arc<
         RwLock<Option<WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>>>,
     >,
 }
 
 impl WebSocket {
-    pub fn new(url: &str, subscriptions: HashMap<String, ISubscriptionDefinition>) -> Self {
+    pub fn new(
+        url: &str,
+        subscriptions: HashMap<String, ISubscriptionDefinition>,
+        auto_reconnect: bool,
+    ) -> Self {
         WebSocket {
             subscriptions,
+            auto_reconnect,
             url: Url::parse(url).unwrap(),
             cache: Arc::new(Mutex::new(HashMap::new())),
             ws_stream: Arc::new(RwLock::new(None)),
         }
     }
 
-    pub async fn start(&mut self) -> Result<(), Box<dyn std::error::Error, dyn s\ Send>> {
+    pub async fn start(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         loop {
             let (ws_stream, _) = match tokio_tungstenite::connect_async(&self.url).await {
                 Ok(stream) => stream,
                 Err(e) => {
-                    tokio::time::sleep(Duration::from_secs(5)).await;
-                    continue;
+                    if self.auto_reconnect {
+                        tokio::time::sleep(Duration::from_secs(5)).await;
+                        continue;
+                    } else {
+                        return Err(Box::new(e));
+                    }
                 }
             };
 
@@ -69,11 +79,16 @@ impl WebSocket {
 
             // Handle the connection
             self.handle_connection().await;
+
+            // If auto_reconnect is false, break the loop
+            if !self.auto_reconnect {
+                return Ok(());
+            }
         }
     }
 
     async fn reconnect(&self) {
-        for sub_def in self.subscriptions.values() {
+        for (_, sub_def) in &self.subscriptions {
             let message = Message::Text(sub_def.subscription.clone());
             if let Some(ws_stream) = self.ws_stream.write().await.as_mut() {
                 ws_stream
@@ -88,66 +103,49 @@ impl WebSocket {
         self.reconnect().await;
 
         if let Some(read) = self.ws_stream.write().await.as_mut() {
-            while let Some(Ok(message)) = read.next().await {
-                match message {
-                    Message::Text(text) => {
-                        if let Ok(value) = serde_json::from_str::<Value>(&text) {
-                            for (id, definition) in &self.subscriptions {
-                                let json_path =
-                                    json_parse_task(value.clone(), definition.filter.as_str());
-
-                                let json_path = json_path.unwrap_or(Value::Null);
-                                if json_path.is_null()
-                                    || (json_path.is_array()
-                                        && json_path.as_array().unwrap().is_empty())
-                                {
-                                    continue;
-                                }
-
-                                let mut cache = self.cache.lock().await;
-                                cache.insert(
-                                    id.clone(),
-                                    CachedWebsocketMessage {
-                                        timestamp: 0,
-                                        data: value.clone(),
-                                    },
-                                );
-
-                                break;
-                            }
-                        }
-                    }
-                    Message::Binary(_binary) => {
-                        eprintln!("WebSocket error: Binary message type not supported");
-                        break;
-                    }
-                    Message::Frame(_binary) => {
-                        eprintln!("WebSocket error: Frame message type not supported");
-                        break;
-                    }
-                    Message::Ping(data) => {
-                        if let Some(ws_stream) = self.ws_stream.write().await.as_mut() {
-                            ws_stream
-                                .send(Message::Pong(data))
-                                .await
-                                .unwrap_or_else(|e| {
-                                    eprintln!("Error sending pong message: {:?}", e);
-                                });
-                        }
-                    }
-                    Message::Pong(_data) => {
-                        eprintln!("WebSocket error: Pong message type not supported");
-                        break;
-                    }
-                    Message::Close(_) => {
+            while let Some(message) = read.next().await {
+                let message = match message {
+                    Ok(msg) => msg,
+                    Err(e) => {
+                        eprintln!("WebSocket error: {:?}", e);
                         break;
                     }
                 };
+
+                if let Message::Text(text) = message {
+                    if let Ok(value) = serde_json::from_str::<Value>(&text) {
+                        for (id, definition) in &self.subscriptions {
+                            let json_path =
+                                json_parse_task(value.clone(), definition.filter.as_str());
+
+                            let json_path = json_path.unwrap_or(Value::Null);
+                            if json_path.is_null()
+                                || (json_path.is_array()
+                                    && json_path.as_array().unwrap().is_empty())
+                            {
+                                return;
+                            }
+
+                            let mut cache = self.cache.lock().await;
+                            cache.insert(
+                                id.clone(),
+                                CachedWebsocketMessage {
+                                    timestamp: 0,
+                                    data: value.clone(),
+                                },
+                            );
+
+                            return;
+                        }
+                    }
+                }
             }
         }
     }
 
     pub async fn close(&mut self) {
+        self.auto_reconnect = false;
+
         if let Some(ws_stream) = self.ws_stream.write().await.as_mut() {
             ws_stream.close(None).await.unwrap_or_else(|e| {
                 eprintln!("Error sending close message: {:?}", e);
@@ -175,17 +173,22 @@ impl WebSocket {
     pub async fn get_cached_value(&self, id: String) -> Option<Value> {
         let cache = self.cache.lock().await;
 
-        let value = cache.get(&id).cloned()?;
+        let value = cache.get(&id).cloned();
+        if value.is_none() {
+            return None;
+        }
 
-        Some(value.data)
+        Some(value.unwrap().data)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::error::Error;
     use futures_util::{SinkExt, StreamExt};
     use serde_json::Value;
+    use std::str::FromStr;
     use tokio::net::TcpListener;
     use tokio_tungstenite::accept_async;
 
@@ -196,7 +199,7 @@ mod tests {
     #[tokio::test]
     async fn test_websocket() {
         // Start a WebSocket server
-        let websocket_server = tokio::spawn(async move {
+        tokio::spawn(async move {
             let listener = TcpListener::bind("127.0.0.1:12345").await.unwrap();
             let (stream, _) = listener.accept().await.unwrap();
             let mut ws = accept_async(stream).await.unwrap();
@@ -205,7 +208,7 @@ mod tests {
             while let Some(Ok(message)) = ws.next().await {
                 if message.is_text() {
                     let text = message.to_text().unwrap();
-                    if let Ok(json_value) = serde_json::from_str::<Value>(text) {
+                    if let Ok(json_value) = serde_json::from_str::<Value>(&text) {
                         // Check for the subscription JSON object
                         if json_value["symbol"].is_string() {
                             is_subscribed = true;
@@ -231,9 +234,9 @@ mod tests {
         tokio::time::sleep(Duration::from_secs(1)).await;
 
         let sol_subscription = r#"{"symbol": "SOLUSDT"}"#.to_string();
-        let subscriptions = HashMap::new();
+        let mut subscriptions = HashMap::new();
 
-        let mut websocket = WebSocket::new(WS_SERVER_URL, subscriptions.clone());
+        let mut websocket = WebSocket::new(WS_SERVER_URL, subscriptions.clone(), false);
 
         websocket
             .add_subscription(ISubscriptionDefinition {
@@ -242,9 +245,9 @@ mod tests {
                 max_age_seconds: 30,
             })
             .await;
-        let websocket_handle = tokio::spawn(async move { websocket.start().await });
+        let start_websocket_result = websocket.start().await;
 
-        // assert!(websocket_handle.is_ok());
+        assert!(start_websocket_result.is_ok());
 
         // Wait 1 seconds after sending the subscription
         tokio::time::sleep(Duration::from_secs(1)).await;
@@ -258,9 +261,6 @@ mod tests {
             serde_json::from_str::<Value>(JSON_STRING).unwrap()
         );
 
-        println!("closing websocket");
-
         websocket.close().await;
-        let _ = websocket_handle.await; // Wait for the WebSocket to close
     }
 }
