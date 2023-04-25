@@ -1,12 +1,17 @@
-use bindgen;
-
 use std::env;
 use std::path::PathBuf;
 
 fn main() {
+    // Get the directory of the current package's Cargo.toml
+    let crate_dir = env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not found");
+    let crate_path = PathBuf::from(crate_dir);
+    // Create the path to your custom library relative to the Cargo.toml
+    let lib_path = crate_path.join("../../lib/libs");
+    let lib_path_str = lib_path.to_str().expect("Failed to convert path to string");
+
     let sgx_sdk_path = "/opt/intel/sgxsdk";
-    // println!(r"cargo:rustc-link-search=.");
-    println!(r"cargo:rustc-link-search=./lib/libs");
+
+    println!(r"cargo:rustc-link-search={}", lib_path_str);
     println!("cargo:rustc-link-search=native={}/lib64", sgx_sdk_path);
     println!("cargo:include={}/include", sgx_sdk_path);
     println!("cargo:include=/usr/include");

@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program;
 
-use switchboard_attestation_client::*;
+use switchboard_attestation_client::solana::ServiceQueueAccountData;
 
 declare_id!("2fqqasoquBUsE17q6bBAne5oYnNpRCExrhh7NKa2Nw1h");
 
@@ -72,9 +72,7 @@ pub struct Initialize<'info> {
     #[account(mut, signer)]
     pub authority: AccountInfo<'info>,
 
-    pub queue: AccountLoader<'info, ServiceQueueAccountData>
-
-
+    // pub queue: AccountLoader<'info, ServiceQueueAccountData>,
     #[account(mut)]
     pub payer: Signer<'info>,
     // SYSTEM ACCOUNTS

@@ -23,7 +23,7 @@ pub type AnchorProgram = Arc<anchor_client::Program<Keypair>>;
 #[tokio::main(worker_threads = 12)]
 async fn main() -> Result<(), Error> {
     // setup logging
-    simple_logger::init_with_env().unwrap();
+    // simple_logger::init_with_env().unwrap();
 
     let config = Config::new()?;
 
@@ -40,9 +40,9 @@ async fn main() -> Result<(), Error> {
         .account(station)
         .expect("station account should already be initialized");
 
-    log::info!("station: {}", station);
-    log::info!("authority: {}", station_account.authority);
-    log::info!("schema: {}", station_account.schema);
+    // println!("station: {}", station);
+    // println!("authority: {}", station_account.authority);
+    // println!("schema: {}", station_account.schema);
 
     let mut scheduler = AsyncScheduler::with_tz(chrono::Utc);
 
@@ -69,7 +69,7 @@ pub async fn run_save_report(program: AnchorProgram, station: Pubkey, quotekp: K
     let report_result = fetch_weather_report().await;
     if report_result.is_err() {
         // log and exit
-        log::warn!("Failed to fetch weather reports");
+        // println!("Failed to fetch weather reports");
         return;
     }
 
@@ -85,7 +85,7 @@ pub async fn run_save_report(program: AnchorProgram, station: Pubkey, quotekp: K
         })
         .send()
     {
-        Err(_) => log::warn!("Failed to save weather reports"),
-        Ok(tx) => log::info!("save_reports signature: {}", tx),
+        Err(_) => println!("Failed to save weather reports"),
+        Ok(tx) => println!("save_reports signature: {}", tx),
     }
 }
