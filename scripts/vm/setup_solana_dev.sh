@@ -23,4 +23,3 @@ anchor --version
 
 # Setup keypair
 find ~/.config/solana/id.json || solana-keygen new --no-bip39-passphrase -o ~/.config/solana/id.json
- 
