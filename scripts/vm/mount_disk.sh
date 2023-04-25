@@ -16,6 +16,15 @@ fi
 
 echo "Found empty disk: $empty_disk"
 
+# Check if the disk is mounted or has partitions
+mounted=$(grep -c "${empty_disk}" /proc/mounts)
+partitions=$(lsblk -dpnlo NAME,TYPE | grep -w "^${empty_disk}" | grep -c "part")
+
+if [[ $mounted -ne 0 ]] || [[ $partitions -ne 0 ]]; then
+    echo "The disk is either mounted or has partitions. Exiting."
+    exit 1
+fi
+
 # Create a new partition on the empty disk
 echo "Creating a new partition on $empty_disk"
 echo -e "n\np\n1\n\n\nw" | fdisk "$empty_disk"
