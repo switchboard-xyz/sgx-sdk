@@ -63,11 +63,13 @@ function azure_create_vm() {
     local ssh_key_name="${2:-id_azure_rsa}"
     local ssh_key_path="$HOME/.ssh/$ssh_key_name.pub"
 
+    local vm_size="${3:-Standard_DC2s_v3}"
+
     create_vm_response=$(az vm create \
         -n "$vm_name" \
         -g Default \
         --admin-username "$AZURE_VM_ADMIN_USER" \
-        --size "$AZURE_VM_SIZE" \
+        --size "$vm_size" \
         --generate-ssh-keys \
         --location "$AZURE_VM_LOCATION" \
         --zone 2 \

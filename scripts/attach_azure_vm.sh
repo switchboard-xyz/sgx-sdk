@@ -6,10 +6,10 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/utils/azure_utils.sh"
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/utils/ssh_utils.sh"
 
 function display_help {
-  printf "\nDescription:\nBash script to attach to an existing SGX compatible virtual machine in Azure\n\nUsage:\n%s [-n, vm name] [-d, local dir to mount] [-s, the ssh key to use] [-l, the vm location]\n\nOptions:\n" "$0"
+  printf "\nDescription:\nBash script to attach to an existing SGX compatible virtual machine in Azure\n\nUsage:\n%s [-n, vm name] [-d, local dir to mount] [-k, the ssh key to use] [-l, the vm location]\n\nOptions:\n" "$0"
   echo "-n vm_name, the name of the virual machine in Azure (defaults to my_sgx_machine)"
   echo "-d dir, the local directory to mount on the remote workstation (defaults to current working directory)"
-  echo "-s ssh_key, the name of the SSH key to use (defaults to id_azure_rsa)"
+  echo "-k ssh_key, the name of the SSH key to use (defaults to id_azure_rsa)"
   echo "-l location, the location of the azure vm. See 'az account list-locations -o table' (defaults to uksouth)"
   printf "\n\nExample:\n\t%s -n my-vm -d examples/solana-event-watcher\n" "$0"
 }
@@ -22,7 +22,7 @@ REMOTE_DIR="/home/$AZURE_VM_ADMIN_USER/workspace"
 LOCAL_DIR="$(get_project_root)"
 AZURE_VM_NAME="my_sgx_machine"
 AZURE_VM_LOCATION="uksouth"
-while getopts 'sd:n:s:l:' OPTION; do
+while getopts 'd:n:k:l:' OPTION; do
   case "$OPTION" in
     d)
       LOCAL_DIR="$OPTARG"
@@ -30,7 +30,7 @@ while getopts 'sd:n:s:l:' OPTION; do
     n)
       AZURE_VM_NAME="$OPTARG"
       ;;
-    s)
+    k)
       AZURE_SSH_KEY="$OPTARG"
       ;;
     l)
@@ -44,12 +44,22 @@ while getopts 'sd:n:s:l:' OPTION; do
 done
 shift "$(($OPTIND -1))"
 
+if [ -z "$AZURE_VM_NAME" ]; then
+  echo "You must provide a VM name with '-n MY_VM_NAME'"
+  exit 1
+fi
+
+echo -e "AZURE_VM_NAME: ${Blue}$AZURE_VM_NAME${Color_Off}"
+echo -e "AZURE_SSH_KEY: ${Blue}$AZURE_SSH_KEY${Color_Off}"
+
+ssh_key_path="$HOME/.ssh/$AZURE_SSH_KEY"
+
 azure_verify_cli_installed
 verify_jq_installed
 verify_sshfs_installed
 verify_rsync_installed
 
-echo -e "AZURE_VM_NAME: ${Blue}$AZURE_VM_NAME${Color_Off}"
+
 
 ############################################################
 ## Login to Azure and verify the SSH keys are setup
@@ -75,7 +85,7 @@ fi
 trap '' ERR
 
 echo Run the following command to ssh into the container:
-printf '\n\tssh -t %s@%s\n\n' "$AZURE_VM_ADMIN_USER" "$AZURE_VM_IP"
+printf '\n\tssh -t -i %s %s@%s\n\n' "$HOME/.ssh/$AZURE_SSH_KEY" "$AZURE_VM_ADMIN_USER" "$AZURE_VM_IP"
 
 # ssh "${AZURE_VM_ADMIN_USER}@${AZURE_VM_IP}" "echo \"`cat ~/.ssh/id_azure_rsa.pub`\" >> .ssh/authorized_keys"
 # ssh-keygen -t rsa -b 4096 -N "" -f ~/.ssh/id_rsa -C "localhost"
@@ -91,7 +101,7 @@ REMOTE_DIR="/home/$AZURE_VM_ADMIN_USER/workspace"
 ssh_from_local_to_remote "$AZURE_VM_IP" "$AZURE_VM_ADMIN_USER" "$REMOTE_DIR" "$LOCAL_DIR"
 
 # Run some commands inside the machine
-ssh -X -t -p 22 "$AZURE_VM_ADMIN_USER"@"$AZURE_VM_IP" -R 10000:localhost:22 "cd $REMOTE_DIR; bash; cd;"
+ssh -X -t -p 22 -i "$ssh_key_path" "$AZURE_VM_ADMIN_USER"@"$AZURE_VM_IP" -R 10000:localhost:22 "cd $REMOTE_DIR; bash; cd;"
 
 # Copy files from remote host to local machine
 ssh_from_remote_to_local "$AZURE_VM_IP" "$AZURE_VM_ADMIN_USER" "$REMOTE_DIR" "$LOCAL_DIR"
