@@ -19,56 +19,59 @@ const accountsToCopy = [
 ];
 
 (async () => {
-  const isValidatorRunning = (await detect(8899)) !== 8899;
+  const shouldReset = process.argv.includes('--reset');
   const shouldKill = process.argv.includes('--kill');
 
   if (shouldKill) {
-    if (!isValidatorRunning) {
-      console.log('Validator is not running');
-      return;
-    }
-
     killProcessUsingPort(8899);
     return;
   }
 
-  if (isValidatorRunning) {
-    console.log(
-      `Solana RPC Validator port (8899) in use, skipping solana-test-validator`
-    );
+  if (shouldReset) {
+    killProcessUsingPort(8899);
   } else {
-    // start validator
-    fs.mkdirSync('.anchor/test-ledger', { recursive: true });
-    const payerPubkey = Keypair.fromSecretKey(
-      new Uint8Array(
-        JSON.parse(
-          fs.readFileSync(
-            `${path.join(os.homedir(), '.config', 'solana', 'id.json')}`,
-            'utf-8'
-          )
+    const isValidatorRunning = (await detect(8899)) !== 8899;
+    if (isValidatorRunning) {
+      console.log(
+        `Solana RPC Validator port (8899) in use, skipping solana-test-validator`
+      );
+      return;
+    }
+  }
+
+  fs.mkdirSync('.anchor/test-ledger', { recursive: true });
+
+  const payerPubkey = Keypair.fromSecretKey(
+    new Uint8Array(
+      JSON.parse(
+        fs.readFileSync(
+          `${path.join(os.homedir(), '.config', 'solana', 'id.json')}`,
+          'utf-8'
         )
       )
-    ).publicKey.toBase58();
-    spawn(
-      `solana-test-validator`,
-      [
-        '-q',
-        '-r',
-        '--ledger',
-        '.anchor/test-ledger',
-        '--mint',
-        `${payerPubkey}`,
-        '--bind-address',
-        '0.0.0.0',
-        '--rpc-port',
-        '8899',
-        '--url',
-        'https://api.devnet.solana.com',
-        ..._.flatten(accountsToCopy.map(a => ['--clone', a])),
-      ],
-      { stdio: 'inherit' }
-    ).unref();
-  }
+    )
+  ).publicKey.toBase58();
+
+  // start validator
+  spawn(
+    `solana-test-validator`,
+    [
+      '-q',
+      '-r',
+      '--ledger',
+      '.anchor/test-ledger',
+      '--mint',
+      `${payerPubkey}`,
+      '--bind-address',
+      '0.0.0.0',
+      '--rpc-port',
+      '8899',
+      '--url',
+      'https://api.devnet.solana.com',
+      ..._.flatten(accountsToCopy.map(a => ['--clone', a])),
+    ],
+    { stdio: 'inherit' }
+  ).unref();
 
   await awaitValidatorReady();
 

@@ -21,12 +21,16 @@ import { BN } from '@switchboard-xyz/common';
 export class QuoteAccount extends Account<types.QuoteAccountData> {
   static accountName = 'QuoteAccountData';
 
-  public static size = 372;
+  get size() {
+    return 0;
+  }
 
-  /**
-   * Returns the size of an on-chain {@linkcode QuoteAccount}.
-   */
-  public readonly size = this.program.account.QuoteAccountData.size;
+  // public static size = 372;
+
+  // /**
+  //  * Returns the size of an on-chain {@linkcode QuoteAccount}.
+  //  */
+  // public readonly size = this.program.account.QuoteAccountData.size;
 
   /**
    * Retrieve and decode the {@linkcode types.QuoteAccountData} stored in this account.
@@ -53,6 +57,12 @@ export class QuoteAccount extends Account<types.QuoteAccountData> {
 
     const queueAccount = new QueueAccount(program, node.queue);
     const queue = await queueAccount.loadData();
+
+    // console.log(
+    //   `DATA (len): ${params.data.length}\nDATA: [${new Uint8Array(
+    //     params.data
+    //   )}]`
+    // );
 
     const txns: Array<TransactionObject> = [];
     for (let i = 0; i < params.data.length; i += 512) {
@@ -86,7 +96,7 @@ export class QuoteAccount extends Account<types.QuoteAccountData> {
             }
           ),
         ],
-        []
+        [keypair]
       );
 
       txns.push(tx);

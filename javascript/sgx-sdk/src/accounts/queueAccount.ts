@@ -12,6 +12,7 @@ import * as types from '../generated';
 import { SwitchboardQuoteProgram } from '../SwitchboardQuoteProgram';
 import { TransactionObject } from '../TransactionObject';
 import { Account, OnAccountChangeCallback } from './account';
+import { NodeAccount, NodeInitWithPermissionsParams } from './nodeAccount';
 
 /**
  * Account type representing an oracle queue's configuration along with a buffer account holding a list of oracles that are actively heartbeating.
@@ -157,6 +158,36 @@ export class QueueAccount extends Account<types.ServiceQueueAccountData> {
       ],
       params.authority ? [params.authority] : []
     );
+  }
+
+  public async createNodeInstructions(
+    payer: PublicKey,
+    params: Omit<NodeInitWithPermissionsParams, 'queue'>
+  ): Promise<[NodeAccount, TransactionObject]> {
+    const queue = await this.loadData();
+
+    const [nodeAccount, nodeInit] = NodeAccount.createInstruction(
+      this.program,
+      payer,
+      {
+        ...params,
+        queue: this.publicKey,
+        queueAuthorityPubkey: queue.authority,
+      }
+    );
+
+    return [nodeAccount, nodeInit];
+  }
+
+  public async createNode(
+    params: Omit<NodeInitWithPermissionsParams, 'queue'>
+  ): Promise<[NodeAccount, TransactionSignature]> {
+    const [nodeAccount, nodeInit] = await this.createNodeInstructions(
+      this.program.walletPubkey,
+      params
+    );
+    const txnSignature = await this.program.signAndSend(nodeInit);
+    return [nodeAccount, txnSignature];
   }
 
   public async addMrEnclave(

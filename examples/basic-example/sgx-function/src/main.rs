@@ -43,7 +43,6 @@ async fn main() -> Result<(), Error> {
     log::info!("station: {}", station);
     log::info!("authority: {}", station_account.authority);
     log::info!("schema: {}", station_account.schema);
-    // log::info!("last_updated: {}", station_account.last_updated);
 
     let mut scheduler = AsyncScheduler::with_tz(chrono::Utc);
 
