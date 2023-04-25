@@ -5,7 +5,6 @@ import {
   SystemProgram,
   TransactionSignature,
 } from '@solana/web3.js';
-import { BN } from '@switchboard-xyz/common';
 import * as errors from '../errors';
 import * as types from '../generated';
 // import { queueAddMrSigner, queueRemoveMrSigner } from '../generated';

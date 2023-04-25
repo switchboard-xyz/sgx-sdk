@@ -12,10 +12,12 @@ const accountsToCopy = [
   'Fi8vncGpNKbq62gPo56G4toCehWNy77GgqGkTaAF5Lkk', // Switchboard IDL
   'CyZuD7RPDcrqCGbNvLCyqk6Py9cEZTKmNKujfPi3ynDd', // Switchboard SbState
   '7hkp1xfPBcD2t1vZMoWWQPzipHVcXeLAAaiGXdPSfDie', // Switchboard tokenVault
-  // 'Hxfwq7cxss4Ef9iDvaLb617dhageGyNWbDLLrg2sdQgT', // Switchboard VerifierQueuer PID
-  // '5Kug4HWcdcMv5TNaHtV4x6gpmtPvigdrHH5BHjEMnLGT', // Switchboard VerifierQueue IDL
-  'GMPkWUe4KdTUqD6jTvAV6PJTcA9rT5LCWZhjFuHQocGb',
-  'Be1e7zt1a1FSTZ6hPLRGYWw5WoMsrxyRs71gZ5juoxUs',
+  'Hxfwq7cxss4Ef9iDvaLb617dhageGyNWbDLLrg2sdQgT', // Switchboard VerifierQueuer PID
+  '5Kug4HWcdcMv5TNaHtV4x6gpmtPvigdrHH5BHjEMnLGT', // Switchboard VerifierQueue IDL
+  'HTMhkVMtUDtufQf9hmzNQDf18JaMzFWQLBKNry85iXKo', // Switchboard VerifierQueue programData
+  // 'GMPkWUe4KdTUqD6jTvAV6PJTcA9rT5LCWZhjFuHQocGb',
+  // 'Be1e7zt1a1FSTZ6hPLRGYWw5WoMsrxyRs71gZ5juoxUs',
+  // '4jMfNifTGVhkcP2YmGyRK1dca4wHAnJyfZeXS17zmxaT'
 ];
 
 (async () => {
@@ -51,6 +53,8 @@ const accountsToCopy = [
       )
     )
   ).publicKey.toBase58();
+
+  console.log(`PAYER: ${payerPubkey}`);
 
   // start validator
   spawn(
@@ -123,7 +127,7 @@ function killProcessUsingPort(port: number): void {
 
     // process.kill(pid);
   } catch (stderr) {
-    console.error('Error getting process ID:', stderr);
+    // console.error('Error getting process ID:', stderr);
     return;
   }
 }
