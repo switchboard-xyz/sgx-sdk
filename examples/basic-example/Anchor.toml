@@ -1,8 +1,14 @@
+[workspace]
+members = [
+    "programs/basic-example"
+]
+
 [features]
 seeds = true
 skip-lint = false
+
 [programs.localnet]
-basic_example = "BZ7ambpq5TN49KczyL7QEfyr2xmnz1ubAHqdSC5ywd5f"
+basic_example = "2fqqasoquBUsE17q6bBAne5oYnNpRCExrhh7NKa2Nw1h"
 
 [registry]
 url = "https://api.apr.dev"

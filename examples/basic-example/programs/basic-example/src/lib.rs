@@ -1,7 +1,9 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program;
 
-declare_id!("BZ7ambpq5TN49KczyL7QEfyr2xmnz1ubAHqdSC5ywd5f");
+use switchboard_attestation_client::*;
+
+declare_id!("2fqqasoquBUsE17q6bBAne5oYnNpRCExrhh7NKa2Nw1h");
 
 pub const WEATHER_SEED: &[u8] = b"WEATHERREPORT";
 
@@ -62,13 +64,17 @@ pub struct Initialize<'info> {
         init,
         space = 8 + std::mem::size_of::<WeatherStation>(),
         payer = payer,
-        seeds = [WEATHER_SEED], 
+        seeds = [b"WEATHERREPORT"], 
         bump
     )]
     pub station: AccountLoader<'info, WeatherStation>,
     /// CHECK:
     #[account(mut, signer)]
     pub authority: AccountInfo<'info>,
+
+    pub queue: AccountLoader<'info, ServiceQueueAccountData>
+
+
     #[account(mut)]
     pub payer: Signer<'info>,
     // SYSTEM ACCOUNTS
@@ -88,7 +94,7 @@ pub struct ReportParams {
 pub struct Report<'info> {
     #[account(
         mut,
-        seeds = [WEATHER_SEED], 
+        seeds = [b"WEATHERREPORT"], 
         bump = station.load()?.bump
     )]
     pub station: AccountLoader<'info, WeatherStation>,

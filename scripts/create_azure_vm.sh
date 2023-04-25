@@ -89,7 +89,7 @@ AZURE_VM_IP=$(azure_get_vm_ip "$AZURE_VM_NAME")
 echo -e "AZURE_VM_IP: ${Blue}$AZURE_VM_IP${Color_Off}"
 
 echo Run the following command to ssh into the container:
-printf '\n\tssh -t -i %s %s@%s\n\n' "$HOME/.ssh/$AZURE_SSH_KEY" "$AZURE_VM_ADMIN_USER" "$AZURE_VM_IP"
+printf '\n\tssh -t %s@%s\n\n' "$AZURE_VM_ADMIN_USER" "$AZURE_VM_IP"
 echo Or run the following:
 printf '\n\t./scripts/attach_azure_vm.sh -n %s\n\n' "$AZURE_VM_NAME"
 

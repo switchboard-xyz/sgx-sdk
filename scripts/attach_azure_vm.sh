@@ -85,7 +85,7 @@ fi
 trap '' ERR
 
 echo Run the following command to ssh into the container:
-printf '\n\tssh -t -i %s %s@%s\n\n' "$HOME/.ssh/$AZURE_SSH_KEY" "$AZURE_VM_ADMIN_USER" "$AZURE_VM_IP"
+printf '\n\tssh -t %s@%s\n\n' "$AZURE_VM_ADMIN_USER" "$AZURE_VM_IP"
 
 # ssh "${AZURE_VM_ADMIN_USER}@${AZURE_VM_IP}" "echo \"`cat ~/.ssh/id_azure_rsa.pub`\" >> .ssh/authorized_keys"
 # ssh-keygen -t rsa -b 4096 -N "" -f ~/.ssh/id_rsa -C "localhost"

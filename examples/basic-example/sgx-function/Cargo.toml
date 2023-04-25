@@ -3,6 +3,8 @@ name = "basic-sgx-function"
 version = "0.1.0"
 edition = "2021"
 
+[workspace]
+
 [dependencies]
 switchboard-attestation-client = "0.1.7"
 # switchboard-attestation-client = { path = "../../../rust/attestation-client" }

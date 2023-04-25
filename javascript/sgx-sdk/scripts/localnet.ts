@@ -21,8 +21,14 @@ const accountsToCopy = [
 ];
 
 (async () => {
-  const shouldReset = process.argv.includes('--reset');
-  const shouldKill = process.argv.includes('--kill');
+  const shouldReset =
+    process.argv.includes('-r') ||
+    process.argv.includes('--reset') ||
+    process.argv.includes('--restart');
+  const shouldKill =
+    process.argv.includes('-k') ||
+    process.argv.includes('--kill') ||
+    process.argv.includes('--stop');
 
   if (shouldKill) {
     killProcessUsingPort(8899);
