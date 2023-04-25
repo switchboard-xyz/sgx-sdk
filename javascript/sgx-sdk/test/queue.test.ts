@@ -23,7 +23,7 @@ describe('SAS Tests', () => {
   });
 
   it('SAS a sss', async () => {
-    console.log('1');
+    console.log('Starting tests ...');
     const [verifierQueueAccount] = await QueueAccount.create(program, {
       authority: program.walletPubkey,
       allowAuthorityOverrideAfter: 60,
@@ -33,6 +33,8 @@ describe('SAS Tests', () => {
       reward: 0,
       nodeTimeout: 180,
     });
+
+    console.log(`Created verifier queue ...`);
 
     const [queueAccount] = await QueueAccount.create(program, {
       verifierQueue: verifierQueueAccount.publicKey,
@@ -45,9 +47,13 @@ describe('SAS Tests', () => {
       nodeTimeout: 180,
     });
 
+    console.log(`Created service queue ...`);
+
     const tx2 = await verifierQueueAccount.addMrEnclave({
       mrEnclave: Buffer.from('123'),
     });
+
+    console.log(`Added MRENCLAVE ...`);
 
     console.log(await verifierQueueAccount.loadData());
     // const tx3 = await queueAccount.removeMrEnclave({
@@ -59,30 +65,42 @@ describe('SAS Tests', () => {
       queue: verifierQueueAccount.publicKey,
     });
 
+    console.log(`Created NodeAccount ...`);
+
     const [vpermissionAccount, vtx2] = await PermissionAccount.create(program, {
       authority: program.walletPubkey,
       granter: verifierQueueAccount.publicKey,
       grantee: vnodeAccount.publicKey,
     });
 
+    console.log(`Created PermissionAccount ...`);
+
     const vtx3 = await vpermissionAccount.set({
       permission: new types.SwitchboardPermission.PermitNodeheartbeat(),
       enable: true,
     });
+
+    console.log(`Enabled PermissionAccount ...`);
 
     const [vquoteAccount] = await QuoteAccount.create(program, {
       node: vnodeAccount.publicKey,
       data: Buffer.from(''),
     });
 
+    console.log(`Created QuoteAccount ...`);
+
     const vtx4 = await vnodeAccount.heartbeat({
       quote: vquoteAccount.publicKey,
     });
+
+    console.log(`NodeAccount heartbeat ...`);
 
     const [nodeAccount, tx4] = await NodeAccount.create(program, {
       authority: program.walletPubkey,
       queue: queueAccount.publicKey,
     });
+
+    console.log(`Created NodeAccount #2 ...`);
 
     const [permissionAccount, tx5] = await PermissionAccount.create(program, {
       authority: program.walletPubkey,
@@ -90,18 +108,25 @@ describe('SAS Tests', () => {
       grantee: nodeAccount.publicKey,
     });
 
+    console.log(`Created PermissionAccount #2`);
+
     const tx6 = await permissionAccount.set({
       permission: new types.SwitchboardPermission.PermitNodeheartbeat(),
       enable: true,
     });
+
+    console.log(`Enabled PermissionAccount #2`);
 
     const [quoteAccount] = await QuoteAccount.create(program, {
       node: nodeAccount.publicKey,
       data: Buffer.from(''),
     });
 
+    console.log(`Created QuoteAccount #2`);
+
     const tx7 = await nodeAccount.heartbeat({ quote: quoteAccount.publicKey });
 
+    console.log(`NodeAccount #2 heartbeat ...`);
     // ===
   });
 });

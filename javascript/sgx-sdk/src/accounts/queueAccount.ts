@@ -140,12 +140,15 @@ export class QueueAccount extends Account<types.ServiceQueueAccountData> {
   ): Promise<TransactionObject> {
     const data = await this.loadData();
 
+    const mrEnclave = new Uint8Array(32);
+    mrEnclave.set(params.mrEnclave);
+
     return new TransactionObject(
       payer,
       [
         types.queueAddMrEnclave(
           this.program,
-          { params: { mrEnclave: [...new Uint8Array(params.mrEnclave)] } },
+          { params: { mrEnclave: [...mrEnclave] } },
           {
             queue: this.publicKey,
             authority: data.authority,

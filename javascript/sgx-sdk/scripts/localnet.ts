@@ -1,5 +1,5 @@
 import detect from 'detect-port';
-import { exec, execSync, spawn } from 'child_process';
+import { execSync, spawn } from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -12,8 +12,10 @@ const accountsToCopy = [
   'Fi8vncGpNKbq62gPo56G4toCehWNy77GgqGkTaAF5Lkk', // Switchboard IDL
   'CyZuD7RPDcrqCGbNvLCyqk6Py9cEZTKmNKujfPi3ynDd', // Switchboard SbState
   '7hkp1xfPBcD2t1vZMoWWQPzipHVcXeLAAaiGXdPSfDie', // Switchboard tokenVault
-  'Hxfwq7cxss4Ef9iDvaLb617dhageGyNWbDLLrg2sdQgT', // Switchboard VerifierQueuer PID
-  '5Kug4HWcdcMv5TNaHtV4x6gpmtPvigdrHH5BHjEMnLGT', // Switchboard VerifierQueue IDL
+  // 'Hxfwq7cxss4Ef9iDvaLb617dhageGyNWbDLLrg2sdQgT', // Switchboard VerifierQueuer PID
+  // '5Kug4HWcdcMv5TNaHtV4x6gpmtPvigdrHH5BHjEMnLGT', // Switchboard VerifierQueue IDL
+  'GMPkWUe4KdTUqD6jTvAV6PJTcA9rT5LCWZhjFuHQocGb',
+  'Be1e7zt1a1FSTZ6hPLRGYWw5WoMsrxyRs71gZ5juoxUs',
 ];
 
 (async () => {
@@ -47,7 +49,7 @@ const accountsToCopy = [
         )
       )
     ).publicKey.toBase58();
-    const process = spawn(
+    spawn(
       `solana-test-validator`,
       [
         '-q',
@@ -108,7 +110,7 @@ async function awaitValidatorReady() {
 
 function killProcessUsingPort(port: number): void {
   try {
-    const stdout = execSync(`fuser -s -k ${port}/tcp`, { encoding: 'utf-8' });
+    execSync(`fuser -s -k ${port}/tcp`, { encoding: 'utf-8' });
     // const pid = parseInt(stdout.trim(), 10);
 
     // if (isNaN(pid)) {
