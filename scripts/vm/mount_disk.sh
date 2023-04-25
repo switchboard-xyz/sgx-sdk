@@ -6,6 +6,12 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
+# Check if required commands are available
+if ! command -v lsblk &>/dev/null || ! command -v blkid &>/dev/null; then
+    echo "The required commands 'lsblk' and 'blkid' are not available. Please install them and try again."
+    exit 1
+fi
+
 # Find the empty disk
 empty_disk=$(lsblk -dpnlo NAME,SIZE,TYPE,MOUNTPOINT | grep -w "disk" | awk 'NF==3 {print $1}' | head -n 1)
 
@@ -38,23 +44,46 @@ mkfs.ext4 "$partition"
 echo "Mounting $partition to /mnt"
 mount "$partition" /mnt
 
-# Copy the home directory to /mnt
-echo "Copying /home to /mnt"
-cp -a /home/* /mnt/
+# Check if the mount was successful
+if ! grep -qs "${partition}" /proc/mounts; then
+    echo "Failed to mount ${partition} to /mnt. Exiting."
+    exit 1
+fi
+
+# Check if a home directory exists before copying its content
+if [[ -d /home ]]; then
+    echo "Copying /home to /mnt"
+    cp -a /home/* /mnt/
+else
+    echo "/home directory not found. Creating an empty directory at /mnt/home"
+    mkdir -p /mnt/home
+fi
 
 # Move the old home directory to home.orig and create a new home directory
 echo "Moving /home to /home.orig"
 mv /home /home.orig
 mkdir /home
 
-# Unmount /mnt and mount the new partition to /home
-echo "Unmounting /mnt and mounting $partition to /home"
+# Unmount /mnt
+echo "Unmounting /mnt"
 umount /mnt
+
+# Mount the new partition to /home
+echo "Mounting $partition to /home"
 mount "$partition" /home
+
+# Check if the mount was successful
+if ! grep -qs "${partition}" /proc/mounts; then
+    echo "Failed to mount ${partition} to /home. Restoring the original /home directory."
+    rm -rf /home
+    mv /home.orig /home
+    exit 1
+fi
 
 # Update /etc/fstab with the new mount point
 echo "Updating /etc/fstab with the new mount point"
 uuid=$(blkid -s UUID -o value "$partition")
+cp /etc/fstab /etc/fstab.orig
 echo "UUID=$uuid /home ext4 defaults 0 2" >> /etc/fstab
 
 # Verify the new setup
@@ -62,3 +91,6 @@ echo "Verifying the new setup"
 mount -a
 df -h /home
 echo "Script completed successfully"
+
+echo "Reboot the VM to verify the mount points are correct"
+echo "Run 'sudo nano /etc/fstab' to correct the mounts"
