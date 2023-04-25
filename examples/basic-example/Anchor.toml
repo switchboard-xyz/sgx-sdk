@@ -35,3 +35,5 @@ address = "7hkp1xfPBcD2t1vZMoWWQPzipHVcXeLAAaiGXdPSfDie"
 [[test.validator.clone]] # sbv3 quoteVerifier
 address = "Hxfwq7cxss4Ef9iDvaLb617dhageGyNWbDLLrg2sdQgT"
 
+[[test.validator.clone]] # sbv3 quoteVerifier IDL
+address = "5Kug4HWcdcMv5TNaHtV4x6gpmtPvigdrHH5BHjEMnLGT"
