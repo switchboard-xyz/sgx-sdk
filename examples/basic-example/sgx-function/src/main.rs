@@ -1,4 +1,3 @@
-use solana_sdk::pubkey::Pubkey;
 use std::ops::Deref;
 use std::sync::Arc;
 
@@ -20,6 +19,10 @@ pub type Keypair = Arc<anchor_client::solana_sdk::signer::keypair::Keypair>;
 pub type AnchorClient = Arc<anchor_client::Client<Keypair>>;
 pub type AnchorProgram = Arc<anchor_client::Program<Keypair>>;
 
+use solana_sdk::{pubkey, pubkey::Pubkey};
+
+const WEATHER_STATION_PID: Pubkey = pubkey!("2fqqasoquBUsE17q6bBAne5oYnNpRCExrhh7NKa2Nw1h");
+
 #[tokio::main(worker_threads = 12)]
 async fn main() -> Result<(), Error> {
     // setup logging
@@ -27,14 +30,14 @@ async fn main() -> Result<(), Error> {
 
     let config = Config::new()?;
 
-    let weather_program: AnchorProgram = Arc::new(config.client.program(weather_station::id()));
+    let weather_program: AnchorProgram = Arc::new(config.client.program(WEATHER_STATION_PID));
     let switchboard_program: AnchorProgram = Arc::new(config.client.program(switchboard::PID));
 
     let quotekp: Keypair =
         switchboard::run_init_quote(config.client.clone(), config.payer.clone()).await;
 
     let (station, _station_bump) =
-        Pubkey::find_program_address(&[weather_station::WEATHER_SEED], &weather_station::id());
+        Pubkey::find_program_address(&[b"WEATHERREPORT"], &WEATHER_STATION_PID);
 
     let station_account: weather_station::WeatherStation = weather_program
         .account(station)
