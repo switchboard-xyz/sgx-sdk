@@ -120,11 +120,11 @@ impl WebSocket {
 
                             let json_path = json_path.unwrap_or(Value::Null);
                             if json_path.is_null() {
-                                return;
+                                continue;
                             }
 
                             if json_path.is_array() && json_path.as_array().unwrap().len() == 0 {
-                                return;
+                                continue;
                             }
 
                             let mut cache = self.cache.lock().await;
