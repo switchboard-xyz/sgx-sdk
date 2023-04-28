@@ -10,14 +10,9 @@ name = "weather_station"
 
 [features]
 no-entrypoint = []
-no-idl = []
-no-log-ix-name = []
 cpi = ["no-entrypoint"]
-default = []
 
 [dependencies]
 anchor-lang = { version = "0.27.0", features = [] }
 bytemuck = "1.13.1"
-
-switchboard-attestation-client = "0.1.7"
-# switchboard-attestation-client = { path = "../../../../rust/attestation-client" }
+solana_switchboard_attestation_program_sdk = "0.1.3"

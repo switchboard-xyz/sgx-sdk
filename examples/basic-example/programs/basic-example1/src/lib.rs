@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program;
 
-use switchboard_attestation_client::solana::ServiceQueueAccountData;
+use solana_switchboard_attestation_program_sdk::QuoteAccountData;
 
 declare_id!("2fqqasoquBUsE17q6bBAne5oYnNpRCExrhh7NKa2Nw1h");
 
