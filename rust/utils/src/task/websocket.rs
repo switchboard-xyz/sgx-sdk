@@ -186,53 +186,72 @@ impl WebSocket {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::error::Error;
-    use futures_util::{SinkExt, StreamExt};
-    use serde_json::Value;
-    use std::str::FromStr;
-    use tokio::net::TcpListener;
-    use tokio_tungstenite::accept_async;
+    use actix::{Actor, StreamHandler};
+    use actix_web::{rt, web, App, Error as ActixError, HttpRequest, HttpResponse, HttpServer};
+    use actix_web_actors::ws;
+    use bytestring::ByteString;
 
-    const WS_SERVER_URL: &str = "ws://localhost:12345";
+    use serde_derive::{Deserialize, Serialize};
+    use serde_json::Value;
+
+    const WS_SERVER_URL: &str = "ws://localhost:12345/";
 
     const JSON_STRING: &str = r#"{"symbol":"SOLUSDT","price":"25.36000000"}"#;
 
-    #[tokio::test]
+    #[actix_rt::test]
     async fn test_websocket() {
-        // Start a WebSocket server
-        tokio::spawn(async move {
-            let listener = TcpListener::bind("127.0.0.1:12345").await.unwrap();
-            let (stream, _) = listener.accept().await.unwrap();
-            let mut ws = accept_async(stream).await.unwrap();
-            let mut is_subscribed = false;
+        #[derive(Debug, Deserialize, Serialize)]
+        pub struct SubscribePrice {
+            pub symbol: String,
+        }
+        struct MyWs;
+        impl Actor for MyWs {
+            type Context = ws::WebsocketContext<Self>;
+        }
+        impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for MyWs {
+            fn handle(
+                &mut self,
+                msg: Result<ws::Message, ws::ProtocolError>,
+                ctx: &mut Self::Context,
+            ) {
+                match msg {
+                    Ok(ws::Message::Text(text)) => {
+                        let mut is_subscribed = false;
 
-            while let Some(Ok(message)) = ws.next().await {
-                if message.is_text() {
-                    let text = message.to_text().unwrap();
-                    if let Ok(json_value) = serde_json::from_str::<Value>(&text) {
-                        // Check for the subscription JSON object
-                        if json_value["symbol"].is_string() {
-                            is_subscribed = true;
-                            ws.send(tokio_tungstenite::tungstenite::Message::text("Subscribed"))
-                                .await
-                                .unwrap();
+                        if let Ok(json_value) =
+                            serde_json::from_str::<SubscribePrice>(&text.to_string().as_str())
+                        {
+                            // Check for the subscription JSON object
+
+                            if !json_value.symbol.is_empty() {
+                                is_subscribed = true;
+                                ctx.text(ByteString::from("Subscribed"));
+                            }
+                        }
+
+                        if is_subscribed {
+                            // Send the static value 8 to the client every 100 ms
+
+                            ctx.text(ByteString::from(JSON_STRING));
                         }
                     }
-                }
-
-                if is_subscribed {
-                    // Send the static value 8 to the client every 100 ms
-
-                    ws.send(tokio_tungstenite::tungstenite::Message::text(JSON_STRING))
-                        .await
-                        .unwrap();
-                    tokio::time::sleep(Duration::from_millis(100)).await;
+                    _ => (),
                 }
             }
-        });
+        }
+        async fn index(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, ActixError> {
+            let resp = ws::start(MyWs {}, &req, stream);
+            resp
+        }
+        let srv = HttpServer::new(|| App::new().route("/", web::get().to(index)))
+            .bind(("127.0.0.1", 12345))
+            .unwrap()
+            .run();
+
+        rt::spawn(srv);
 
         // Wait for the server to start
-        tokio::time::sleep(Duration::from_secs(1)).await;
+        tokio::time::sleep(Duration::from_millis(100)).await;
 
         let sol_subscription = r#"{"symbol": "SOLUSDT"}"#.to_string();
         let mut subscriptions = HashMap::new();
