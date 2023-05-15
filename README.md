@@ -33,6 +33,14 @@ cargo build
 
 > **Note** <br /> This repo includes dependencies that require an SGX compatible machine to compile.
 
+## Documentation
+
+The following links provide some background on Switchboard's implimentation of on-chain attestation:
+
+- [What is Switchboard V3?](https://docs.switchboard.xyz/v3): Switchboard docs on Switchboard V3.
+- [What are Secure Enclaves?](https://docs.switchboard.xyz/tee): Switchboard docs on Trusted Execution Environments (TEE).
+- [Intel SGX SDK Overview](./docs/Intel_SDK_Overview.md): Some background on some Intel nomenclature used throughout this repository.
+
 ### Create SGX Virtual Machine
 
 You will need a host machine with SGX in order to develop Switchboard functions.
