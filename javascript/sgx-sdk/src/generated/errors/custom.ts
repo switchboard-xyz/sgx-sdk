@@ -10,7 +10,11 @@ export type CustomError =
   | MrEnclaveAlreadyExists
   | MrEnclaveDoesntExist
   | MrEnclaveAtCapacity
-  | PermissionDenied;
+  | PermissionDenied
+  | InvalidConstraint
+  | InvalidTimestamp
+  | InvalidMrEnclave
+  | InvalidReportData;
 
 export class GenericError extends Error {
   static readonly code = 6000;
@@ -122,6 +126,46 @@ export class PermissionDenied extends Error {
   }
 }
 
+export class InvalidConstraint extends Error {
+  static readonly code = 6011;
+  readonly code = 6011;
+  readonly name = 'InvalidConstraint';
+
+  constructor(readonly logs?: string[]) {
+    super('6011: ');
+  }
+}
+
+export class InvalidTimestamp extends Error {
+  static readonly code = 6012;
+  readonly code = 6012;
+  readonly name = 'InvalidTimestamp';
+
+  constructor(readonly logs?: string[]) {
+    super('6012: ');
+  }
+}
+
+export class InvalidMrEnclave extends Error {
+  static readonly code = 6013;
+  readonly code = 6013;
+  readonly name = 'InvalidMrEnclave';
+
+  constructor(readonly logs?: string[]) {
+    super('6013: ');
+  }
+}
+
+export class InvalidReportData extends Error {
+  static readonly code = 6014;
+  readonly code = 6014;
+  readonly name = 'InvalidReportData';
+
+  constructor(readonly logs?: string[]) {
+    super('6014: ');
+  }
+}
+
 export function fromCode(code: number, logs?: string[]): CustomError | null {
   switch (code) {
     case 6000:
@@ -146,6 +190,14 @@ export function fromCode(code: number, logs?: string[]): CustomError | null {
       return new MrEnclaveAtCapacity(logs);
     case 6010:
       return new PermissionDenied(logs);
+    case 6011:
+      return new InvalidConstraint(logs);
+    case 6012:
+      return new InvalidTimestamp(logs);
+    case 6013:
+      return new InvalidMrEnclave(logs);
+    case 6014:
+      return new InvalidReportData(logs);
   }
 
   return null;

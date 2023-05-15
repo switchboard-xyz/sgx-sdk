@@ -5,30 +5,30 @@ import * as types from '../types'; // eslint-disable-line @typescript-eslint/no-
 import * as borsh from '@coral-xyz/borsh';
 
 export interface QueueInitParamsFields {
-  allowAuthorityOverrideAfter: BN;
+  allowAuthorityOverrideAfter: number;
   requireAuthorityHeartbeatPermission: boolean;
   requireUsagePermissions: boolean;
-  maxQuoteVerificationAge: BN;
+  maxQuoteVerificationAge: number;
   reward: number;
-  nodeTimeout: BN;
+  nodeTimeout: number;
 }
 
 export interface QueueInitParamsJSON {
-  allowAuthorityOverrideAfter: string;
+  allowAuthorityOverrideAfter: number;
   requireAuthorityHeartbeatPermission: boolean;
   requireUsagePermissions: boolean;
-  maxQuoteVerificationAge: string;
+  maxQuoteVerificationAge: number;
   reward: number;
-  nodeTimeout: string;
+  nodeTimeout: number;
 }
 
 export class QueueInitParams {
-  readonly allowAuthorityOverrideAfter: BN;
+  readonly allowAuthorityOverrideAfter: number;
   readonly requireAuthorityHeartbeatPermission: boolean;
   readonly requireUsagePermissions: boolean;
-  readonly maxQuoteVerificationAge: BN;
+  readonly maxQuoteVerificationAge: number;
   readonly reward: number;
-  readonly nodeTimeout: BN;
+  readonly nodeTimeout: number;
 
   constructor(fields: QueueInitParamsFields) {
     this.allowAuthorityOverrideAfter = fields.allowAuthorityOverrideAfter;
@@ -43,12 +43,12 @@ export class QueueInitParams {
   static layout(property?: string) {
     return borsh.struct(
       [
-        borsh.i64('allowAuthorityOverrideAfter'),
+        borsh.u32('allowAuthorityOverrideAfter'),
         borsh.bool('requireAuthorityHeartbeatPermission'),
         borsh.bool('requireUsagePermissions'),
-        borsh.i64('maxQuoteVerificationAge'),
+        borsh.u32('maxQuoteVerificationAge'),
         borsh.u32('reward'),
-        borsh.i64('nodeTimeout'),
+        borsh.u32('nodeTimeout'),
       ],
       property
     );
@@ -81,25 +81,25 @@ export class QueueInitParams {
 
   toJSON(): QueueInitParamsJSON {
     return {
-      allowAuthorityOverrideAfter: this.allowAuthorityOverrideAfter.toString(),
+      allowAuthorityOverrideAfter: this.allowAuthorityOverrideAfter,
       requireAuthorityHeartbeatPermission:
         this.requireAuthorityHeartbeatPermission,
       requireUsagePermissions: this.requireUsagePermissions,
-      maxQuoteVerificationAge: this.maxQuoteVerificationAge.toString(),
+      maxQuoteVerificationAge: this.maxQuoteVerificationAge,
       reward: this.reward,
-      nodeTimeout: this.nodeTimeout.toString(),
+      nodeTimeout: this.nodeTimeout,
     };
   }
 
   static fromJSON(obj: QueueInitParamsJSON): QueueInitParams {
     return new QueueInitParams({
-      allowAuthorityOverrideAfter: new BN(obj.allowAuthorityOverrideAfter),
+      allowAuthorityOverrideAfter: obj.allowAuthorityOverrideAfter,
       requireAuthorityHeartbeatPermission:
         obj.requireAuthorityHeartbeatPermission,
       requireUsagePermissions: obj.requireUsagePermissions,
-      maxQuoteVerificationAge: new BN(obj.maxQuoteVerificationAge),
+      maxQuoteVerificationAge: obj.maxQuoteVerificationAge,
       reward: obj.reward,
-      nodeTimeout: new BN(obj.nodeTimeout),
+      nodeTimeout: obj.nodeTimeout,
     });
   }
 

@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "types": [
+      "mocha",
+      "chai"
+    ],
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
+    "module": "CommonJS",
+    "noEmit": true,
+    "esModuleInterop": true,
+    "rootDir": "../",
+    "resolveJsonModule": true,
+    "paths": {
+      "@switchboard-xyz/sgx": [
+        "../sgx-sdk"
+      ]
+    }
+  },
+  "include": [
+    "./tests/**/*",
+    "./src/**/*",
+  ],
+  "references": [
+    {
+      "path": "../"
+    }
+  ]
+}

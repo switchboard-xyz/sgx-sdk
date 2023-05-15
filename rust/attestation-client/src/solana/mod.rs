@@ -1,21 +1,21 @@
-use anchor_client::solana_sdk::hash::Hash;
-use std::sync::Arc;
 use crate::error::Err;
-use bytemuck::Pod;
-use bytemuck::Zeroable;
-use anchor_client::solana_sdk::message::Message;
+use anchor_client::anchor_lang;
 use anchor_client::anchor_lang::prelude::*;
 use anchor_client::anchor_lang::Discriminator;
 use anchor_client::anchor_lang::InstructionData;
+pub use anchor_client::solana_sdk;
+use anchor_client::solana_sdk::hash::Hash;
+use anchor_client::solana_sdk::instruction::Instruction;
+use anchor_client::solana_sdk::message::Message;
+use anchor_client::solana_sdk::pubkey;
+use anchor_client::solana_sdk::pubkey::Pubkey;
 use anchor_client::solana_sdk::signature::Signer;
 use anchor_client::solana_sdk::signer::keypair::Keypair;
-use anchor_client::solana_sdk::instruction::Instruction;
 use anchor_client::solana_sdk::transaction::Transaction;
-use anchor_client::solana_sdk::pubkey;
-use anchor_client::anchor_lang;
-use anchor_client::solana_sdk::pubkey::Pubkey;
+use bytemuck::Pod;
+use bytemuck::Zeroable;
 use std::result::Result;
-pub use anchor_client::solana_sdk;
+use std::sync::Arc;
 
 pub struct QuoteInitSimple {
     pub quote: Pubkey,
@@ -110,7 +110,6 @@ impl QuoteInitSimple {
     }
 }
 
-
 pub const PID: Pubkey = pubkey!("Hxfwq7cxss4Ef9iDvaLb617dhageGyNWbDLLrg2sdQgT");
 
 pub fn ix_discriminator(name: &str) -> [u8; 8] {
@@ -165,14 +164,11 @@ pub fn load<T: bytemuck::Pod>(
     client: &anchor_client::Client<Arc<Keypair>>,
     key: Pubkey,
 ) -> Result<T, Err> {
-    let data = client
-        .program(PID)
-        .rpc()
-        .get_account_data(&key)
-        .unwrap();
+    let data = client.program(PID).rpc().get_account_data(&key).unwrap();
     Ok(*bytemuck::from_bytes::<T>(&data[8..]))
 }
 
+// TODO: Verify zero_copy works
 #[repr(packed)]
 #[derive(Copy, Clone, Debug)]
 pub struct ServiceQueueAccountData {

@@ -1,10 +1,11 @@
 [workspace]
 members = [
-  "rust/*"
+  "rust/*",
 ]
-exclude = [
-  "examples/*"
-]
+
+# exclude = [
+#   "examples/*"
+# ]
 
 [profile.release]
 strip = true

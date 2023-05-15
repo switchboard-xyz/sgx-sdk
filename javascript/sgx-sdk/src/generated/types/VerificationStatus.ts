@@ -73,6 +73,29 @@ export class VerificationSuccess {
   }
 }
 
+export interface VerificationOverrideJSON {
+  kind: 'VerificationOverride';
+}
+
+export class VerificationOverride {
+  static readonly discriminator = 3;
+  static readonly kind = 'VerificationOverride';
+  readonly discriminator = 3;
+  readonly kind = 'VerificationOverride';
+
+  toJSON(): VerificationOverrideJSON {
+    return {
+      kind: 'VerificationOverride',
+    };
+  }
+
+  toEncodable() {
+    return {
+      VerificationOverride: {},
+    };
+  }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function fromDecoded(obj: any): types.VerificationStatusKind {
   if (typeof obj !== 'object') {
@@ -87,6 +110,9 @@ export function fromDecoded(obj: any): types.VerificationStatusKind {
   }
   if ('VerificationSuccess' in obj) {
     return new VerificationSuccess();
+  }
+  if ('VerificationOverride' in obj) {
+    return new VerificationOverride();
   }
 
   throw new Error('Invalid enum object');
@@ -105,6 +131,9 @@ export function fromJSON(
     case 'VerificationSuccess': {
       return new VerificationSuccess();
     }
+    case 'VerificationOverride': {
+      return new VerificationOverride();
+    }
   }
 }
 
@@ -113,6 +142,7 @@ export function layout(property?: string) {
     borsh.struct([], 'VerificationPending'),
     borsh.struct([], 'VerificationFailure'),
     borsh.struct([], 'VerificationSuccess'),
+    borsh.struct([], 'VerificationOverride'),
   ]);
   if (property !== undefined) {
     return ret.replicate(property);

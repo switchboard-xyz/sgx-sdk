@@ -3,3 +3,4 @@ export * from './TransactionObject';
 export * as errors from './errors';
 export * as types from './generated';
 export * from './accounts';
+export * from './generated/programId';

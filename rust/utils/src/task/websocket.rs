@@ -136,7 +136,7 @@ impl WebSocket {
                                 },
                             );
 
-                            return;
+                            break;
                         }
                     }
                 }
@@ -280,5 +280,7 @@ mod tests {
             cached_value,
             serde_json::from_str::<Value>(JSON_STRING).unwrap()
         );
+
+        websocket.close().await;
     }
 }

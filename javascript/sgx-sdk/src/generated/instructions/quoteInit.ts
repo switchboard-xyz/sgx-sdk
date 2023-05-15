@@ -18,6 +18,7 @@ export interface QuoteInitAccounts {
   verifierQueue: PublicKey;
   node: PublicKey;
   authority: PublicKey;
+  queueAuthority: PublicKey;
   payer: PublicKey;
   systemProgram: PublicKey;
 }
@@ -32,9 +33,10 @@ export function quoteInit(
   const keys: Array<AccountMeta> = [
     { pubkey: accounts.quote, isSigner: true, isWritable: true },
     { pubkey: accounts.queue, isSigner: false, isWritable: true },
-    { pubkey: accounts.verifierQueue, isSigner: false, isWritable: false },
-    { pubkey: accounts.node, isSigner: false, isWritable: false },
+    { pubkey: accounts.verifierQueue, isSigner: false, isWritable: true },
+    { pubkey: accounts.node, isSigner: false, isWritable: true },
     { pubkey: accounts.authority, isSigner: true, isWritable: false },
+    { pubkey: accounts.queueAuthority, isSigner: false, isWritable: false },
     { pubkey: accounts.payer, isSigner: true, isWritable: true },
     { pubkey: accounts.systemProgram, isSigner: false, isWritable: false },
   ];

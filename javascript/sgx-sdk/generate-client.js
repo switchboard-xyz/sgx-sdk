@@ -63,7 +63,7 @@ async function main() {
 
   // TODO: Update this program ID
   execSync(
-    'rm -rf ./src/generated && npx anchor-client-gen --program-id GMPkWUe4KdTUqD6jTvAV6PJTcA9rT5LCWZhjFuHQocGb ../target/idl/switchboard_quote_verifier.json ./src/generated'
+    'rm -rf ./src/generated && npx anchor-client-gen --program-id Hxfwq7cxss4Ef9iDvaLb617dhageGyNWbDLLrg2sdQgT /Users/gally/dev/switchboard/switchboard-core/switchboard_v2/target/idl/switchboard_quote_verifier.json ./src/generated'
   );
   fs.writeFileSync(
     './src/generated/index.ts',

@@ -15,9 +15,9 @@ export interface QueueInitArgs {
 export interface QueueInitAccounts {
   queue: PublicKey;
   authority: PublicKey;
-  verifierQueue: PublicKey;
   payer: PublicKey;
   systemProgram: PublicKey;
+  verifierQueue: PublicKey;
 }
 
 export const layout = borsh.struct([types.QueueInitParams.layout('params')]);
@@ -30,9 +30,9 @@ export function queueInit(
   const keys: Array<AccountMeta> = [
     { pubkey: accounts.queue, isSigner: true, isWritable: true },
     { pubkey: accounts.authority, isSigner: false, isWritable: false },
-    { pubkey: accounts.verifierQueue, isSigner: false, isWritable: false },
     { pubkey: accounts.payer, isSigner: true, isWritable: true },
     { pubkey: accounts.systemProgram, isSigner: false, isWritable: false },
+    { pubkey: accounts.verifierQueue, isSigner: false, isWritable: false },
   ];
   const identifier = Buffer.from([144, 18, 99, 145, 133, 27, 207, 13]);
   const buffer = Buffer.alloc(1000);

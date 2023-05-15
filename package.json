@@ -16,6 +16,8 @@
     "lint": "turbo run lint",
     "fix": "pnpm -r fix",
     "clean": "turbo run clean && rm -rf node_modules",
+    "clean:cargo": "find . -type d \\( -name \"target\" -o -name \"test-ledger\" -o -name \".anchor\" \\) -exec rm -rf {} +",
+    "clean:js": "find . -type d -name \"node_modules\" -exec rm -rf {} +",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "changeset": "changeset",
     "version-packages": "changeset version",

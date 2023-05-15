@@ -4,9 +4,10 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/utils/azure_utils.sh"
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/utils/ssh_utils.sh"
 
 function display_help {
-  printf "\nDescription:\nBash script to spin up an SGX compatible virtual machine in Azure\n\nUsage:\n%s [-n, vm_name] [-s, ssh_key] [-l, location]\n\nOptions:\n" "$0"
+  printf "\nDescription:\nBash script to spin up an SGX compatible virtual machine in Azure\n\nUsage:\n%s [-n, vm_name] [-k, ssh_key] [-l, location]\n\nOptions:\n" "$0"
   echo "-n vm_name, the name of the virual machine in Azure (defaults to my_sgx_machine)"
-  echo "-s ssh_key, the name of the SSH key to use (defaults to id_azure_rsa)"
+  echo "-k ssh_key, the name of the SSH key to use (defaults to id_azure_rsa)"
+  echo "-s vm_size, the type of Azure VM to create (defaults to Standard_DC2s_v3)"
   echo "-l location, the location of the azure vm. See 'az account list-locations -o table' (defaults to uksouth)"
   printf "\n\nExample:\n\t%s my-vm my-sgx-function\n" "$0"
 }
@@ -15,13 +16,12 @@ trap 'echo "Error occurred. Displaying help..."; display_help; exit 1' ERR
 
 set -eo pipefail
 
-AZURE_VM_NAME="my_sgx_machine"
-SGX_IMG_NAME="my_sgx_function"
+AZURE_VM_NAME=""
 AZURE_VM_ADMIN_USER="azureuser"
 AZURE_SSH_KEY="id_azure_rsa"
 AZURE_VM_LOCATION="uksouth"
-AZURE_VM_SIZE="Standard_DC2s_v3" # https://learn.microsoft.com/en-us/azure/virtual-machines/dv3-dsv3-series
-while getopts 'sd:n:i:s:l:' OPTION; do
+AZURE_VM_SIZE="Standard_DC2s_v3" # https://learn.microsoft.com/en-us/azure/virtual-machines/dcv3-series
+while getopts 'd:n:i:s:k:l:' OPTION; do
   case "$OPTION" in
     d)
       LOCAL_DIR="$OPTARG"
@@ -29,8 +29,11 @@ while getopts 'sd:n:i:s:l:' OPTION; do
     n)
       AZURE_VM_NAME="$OPTARG"
       ;;
-    s)
+    k)
       AZURE_SSH_KEY="$OPTARG"
+      ;;
+    s)
+      AZURE_VM_SIZE="$OPTARG"
       ;;
     l)
       AZURE_VM_LOCATION="$OPTARG"
@@ -43,8 +46,16 @@ while getopts 'sd:n:i:s:l:' OPTION; do
 done
 shift "$(($OPTIND -1))"
 
+if [ -z "$AZURE_VM_NAME" ]; then
+  echo "You must provide a VM name with '-n MY_VM_NAME'"
+  exit 1
+fi
 
 echo -e "AZURE_VM_NAME: ${Blue}$AZURE_VM_NAME${Color_Off}"
+echo -e "AZURE_SSH_KEY: ${Blue}$AZURE_SSH_KEY${Color_Off}"
+echo -e "AZURE_VM_LOCATION: ${Blue}$AZURE_VM_LOCATION${Color_Off}"
+echo -e "AZURE_VM_SIZE: ${Blue}$AZURE_VM_SIZE${Color_Off}"
+echo ""
 
 azure_verify_cli_installed
 verify_jq_installed
@@ -68,7 +79,7 @@ if [ "$(azure_check_vm_exists "$AZURE_VM_NAME")" == "true" ]; then
     echo "Found an existing Azure VM ($AZURE_VM_NAME) ..."
 else
     echo "Creating a new Azure VM ($AZURE_VM_NAME) ..."
-    azure_create_vm "$AZURE_VM_NAME" "$AZURE_SSH_KEY"
+    azure_create_vm "$AZURE_VM_NAME" "$AZURE_SSH_KEY" "$AZURE_VM_SIZE"
 fi
 
 ############################################################

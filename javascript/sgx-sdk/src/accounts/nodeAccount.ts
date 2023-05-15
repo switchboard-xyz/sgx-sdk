@@ -12,6 +12,7 @@ import { TransactionObject } from '../TransactionObject';
 import { Account } from './account';
 import { PermissionAccount } from './permissionAccount';
 import { QueueAccount } from './queueAccount';
+import { QuoteAccount, QuoteAccountInitParams } from './quoteAccount';
 
 /**
  *  Parameters for initializing an {@linkcode NodeAccount}
@@ -21,6 +22,15 @@ export interface NodeAccountInitParams {
   authority?: PublicKey;
   queue: PublicKey;
 }
+
+export type NodeInitWithPermissionsParams = NodeAccountInitParams & {
+  enable?: boolean;
+} & (
+    | {
+        queueAuthorityPubkey: PublicKey;
+      }
+    | { queueAuthorityKeypair: Keypair }
+  );
 
 /**
  *  Parameters for a {@linkcode NodeAccount} to heartbeat
@@ -36,12 +46,14 @@ export interface NodeHeartbeatParams {
 export class NodeAccount extends Account<types.NodeAccountData> {
   static accountName = 'NodeAccountData';
 
-  public static size = 372;
+  get size() {
+    return 0;
+  }
 
-  /**
-   * Returns the size of an on-chain {@linkcode NodeAccount}.
-   */
-  public readonly size = this.program.account.NodeAccountData.size;
+  // /**
+  //  * Returns the size of an on-chain {@linkcode NodeAccount}.
+  //  */
+  // public readonly size = this.program.account.NodeAccountData.size;
 
   /**
    * Retrieve and decode the {@linkcode types.NodeAccountData} stored in this account.
@@ -59,7 +71,7 @@ export class NodeAccount extends Account<types.NodeAccountData> {
   public static createInstruction(
     program: SwitchboardQuoteProgram,
     payer: PublicKey,
-    params: NodeAccountInitParams
+    params: NodeInitWithPermissionsParams
   ): [NodeAccount, TransactionObject] {
     const keypair = params.keypair ?? Keypair.generate();
     const instruction = types.nodeInit(
@@ -76,12 +88,60 @@ export class NodeAccount extends Account<types.NodeAccountData> {
 
     const nodeAccount = new NodeAccount(program, keypair.publicKey);
 
-    return [nodeAccount, new TransactionObject(payer, [instruction], [])];
+    let queueAuthorityPubkey: PublicKey;
+    if ('queueAuthorityKeypair' in params) {
+      queueAuthorityPubkey = params.queueAuthorityKeypair!.publicKey;
+    } else if ('queueAuthorityPubkey' in params) {
+      queueAuthorityPubkey = params.queueAuthorityPubkey;
+    } else {
+      throw new Error(
+        `Need to provide 'queueAuthorityPubkey' or 'queueAuthorityKeypair'`
+      );
+    }
+
+    let nodeInit = new TransactionObject(payer, [instruction], [keypair]);
+
+    const [permissionAccount, permissionInit] =
+      PermissionAccount.createInstruction(program, payer, {
+        granter: params.queue,
+        grantee: nodeAccount.publicKey,
+        authority: queueAuthorityPubkey,
+      });
+
+    nodeInit.combine(permissionInit);
+
+    if (params.enable && queueAuthorityPubkey) {
+      const permissionSetSigners: Array<Keypair> =
+        'queueAuthorityKeypair' in params
+          ? [params.queueAuthorityKeypair!]
+          : [];
+
+      const permissionSetIxn = types.permissionSet(
+        program,
+        {
+          params: {
+            permission: new types.SwitchboardPermission.PermitNodeheartbeat()
+              .discriminator,
+            enable: params.enable,
+          },
+        },
+        {
+          permission: permissionAccount.publicKey,
+          authority: queueAuthorityPubkey,
+          queue: params.queue,
+          node: nodeAccount.publicKey,
+        }
+      );
+
+      nodeInit = nodeInit.add(permissionSetIxn, permissionSetSigners);
+    }
+
+    return [nodeAccount, nodeInit];
   }
 
   public static async create(
     program: SwitchboardQuoteProgram,
-    params: NodeAccountInitParams
+    params: NodeInitWithPermissionsParams
   ): Promise<[NodeAccount, TransactionSignature]> {
     const [account, txnObject] = this.createInstruction(
       program,
@@ -90,6 +150,32 @@ export class NodeAccount extends Account<types.NodeAccountData> {
     );
     const txSignature = await program.signAndSend(txnObject);
     return [account, txSignature];
+  }
+
+  public async createQuoteInstructions(
+    payer: PublicKey,
+    params: Omit<QuoteAccountInitParams, 'node'>
+  ): Promise<[QuoteAccount, Array<TransactionObject>]> {
+    const [quoteAccount, quoteInit] = await QuoteAccount.createInstruction(
+      this.program,
+      payer,
+      {
+        ...params,
+        node: this.publicKey,
+      }
+    );
+    return [quoteAccount, quoteInit];
+  }
+
+  public async createQuote(
+    params: Omit<QuoteAccountInitParams, 'node'>
+  ): Promise<[QuoteAccount, Array<TransactionSignature>]> {
+    const [account, txnObject] = await this.createQuoteInstructions(
+      this.program.walletPubkey,
+      params
+    );
+    const txSignatures = await this.program.signAndSendAll(txnObject);
+    return [account, txSignatures];
   }
 
   public async heartbeatInstruction(

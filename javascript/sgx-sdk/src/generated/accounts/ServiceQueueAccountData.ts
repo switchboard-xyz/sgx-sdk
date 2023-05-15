@@ -69,7 +69,7 @@ export class ServiceQueueAccountData {
     borsh.publicKey('verifierQueue'),
     borsh.array(borsh.array(borsh.u8(), 32), 32, 'mrEnclaves'),
     borsh.u32('mrEnclavesLen'),
-    borsh.array(borsh.publicKey(), 256, 'data'),
+    borsh.array(borsh.publicKey(), 32, 'data'),
     borsh.u32('dataLen'),
     borsh.i64('allowAuthorityOverrideAfter'),
     borsh.bool('requireAuthorityHeartbeatPermission'),

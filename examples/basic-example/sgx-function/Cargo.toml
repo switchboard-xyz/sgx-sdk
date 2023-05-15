@@ -1,0 +1,26 @@
+[package]
+name = "basic-sgx-function"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+
+[dependencies]
+switchboard-attestation-client = "0.1.7"
+# switchboard-attestation-client = { path = "../../../rust/attestation-client" }
+
+# switchboard-utils = "*"
+switchboard-utils = { path = "../../../rust/utils" }
+
+weather-station = { path = "../programs/basic-example" }
+
+tokio = "1.26.0"
+clokwerk = "0.4.0"
+futures = "0.3.28"
+chrono = "0.4.24"
+# simple_logger = "4"
+# log = "0.4.17"
+
+anchor-client = "0.27.0"
+anchor-lang = "0.27.0"
+solana-sdk = "1.15.2"

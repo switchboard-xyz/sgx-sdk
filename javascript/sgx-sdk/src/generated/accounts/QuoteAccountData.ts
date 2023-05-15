@@ -6,34 +6,40 @@ import * as types from '../types'; // eslint-disable-line @typescript-eslint/no-
 
 export interface QuoteAccountDataFields {
   node: PublicKey;
+  nodeAuthority: PublicKey;
   queue: PublicKey;
   quoteBuffer: Array<number>;
   quoteLen: number;
   isReady: boolean;
-  verificationStatus: types.VerificationStatusKind;
+  verificationStatus: number;
   verificationTimestamp: BN;
+  validUntil: BN;
   ebuf: Array<number>;
 }
 
 export interface QuoteAccountDataJSON {
   node: string;
+  nodeAuthority: string;
   queue: string;
   quoteBuffer: Array<number>;
   quoteLen: number;
   isReady: boolean;
-  verificationStatus: types.VerificationStatusJSON;
+  verificationStatus: number;
   verificationTimestamp: string;
+  validUntil: string;
   ebuf: Array<number>;
 }
 
 export class QuoteAccountData {
   readonly node: PublicKey;
+  readonly nodeAuthority: PublicKey;
   readonly queue: PublicKey;
   readonly quoteBuffer: Array<number>;
   readonly quoteLen: number;
   readonly isReady: boolean;
-  readonly verificationStatus: types.VerificationStatusKind;
+  readonly verificationStatus: number;
   readonly verificationTimestamp: BN;
+  readonly validUntil: BN;
   readonly ebuf: Array<number>;
 
   static readonly discriminator = Buffer.from([
@@ -42,23 +48,27 @@ export class QuoteAccountData {
 
   static readonly layout = borsh.struct([
     borsh.publicKey('node'),
+    borsh.publicKey('nodeAuthority'),
     borsh.publicKey('queue'),
     borsh.array(borsh.u8(), 8192, 'quoteBuffer'),
     borsh.u32('quoteLen'),
     borsh.bool('isReady'),
-    types.VerificationStatus.layout('verificationStatus'),
+    borsh.u8('verificationStatus'),
     borsh.i64('verificationTimestamp'),
+    borsh.i64('validUntil'),
     borsh.array(borsh.u8(), 1024, 'ebuf'),
   ]);
 
   constructor(fields: QuoteAccountDataFields) {
     this.node = fields.node;
+    this.nodeAuthority = fields.nodeAuthority;
     this.queue = fields.queue;
     this.quoteBuffer = fields.quoteBuffer;
     this.quoteLen = fields.quoteLen;
     this.isReady = fields.isReady;
     this.verificationStatus = fields.verificationStatus;
     this.verificationTimestamp = fields.verificationTimestamp;
+    this.validUntil = fields.validUntil;
     this.ebuf = fields.ebuf;
   }
 
@@ -105,14 +115,14 @@ export class QuoteAccountData {
 
     return new QuoteAccountData({
       node: dec.node,
+      nodeAuthority: dec.nodeAuthority,
       queue: dec.queue,
       quoteBuffer: dec.quoteBuffer,
       quoteLen: dec.quoteLen,
       isReady: dec.isReady,
-      verificationStatus: types.VerificationStatus.fromDecoded(
-        dec.verificationStatus
-      ),
+      verificationStatus: dec.verificationStatus,
       verificationTimestamp: dec.verificationTimestamp,
+      validUntil: dec.validUntil,
       ebuf: dec.ebuf,
     });
   }
@@ -120,12 +130,14 @@ export class QuoteAccountData {
   toJSON(): QuoteAccountDataJSON {
     return {
       node: this.node.toString(),
+      nodeAuthority: this.nodeAuthority.toString(),
       queue: this.queue.toString(),
       quoteBuffer: this.quoteBuffer,
       quoteLen: this.quoteLen,
       isReady: this.isReady,
-      verificationStatus: this.verificationStatus.toJSON(),
+      verificationStatus: this.verificationStatus,
       verificationTimestamp: this.verificationTimestamp.toString(),
+      validUntil: this.validUntil.toString(),
       ebuf: this.ebuf,
     };
   }
@@ -133,14 +145,14 @@ export class QuoteAccountData {
   static fromJSON(obj: QuoteAccountDataJSON): QuoteAccountData {
     return new QuoteAccountData({
       node: new PublicKey(obj.node),
+      nodeAuthority: new PublicKey(obj.nodeAuthority),
       queue: new PublicKey(obj.queue),
       quoteBuffer: obj.quoteBuffer,
       quoteLen: obj.quoteLen,
       isReady: obj.isReady,
-      verificationStatus: types.VerificationStatus.fromJSON(
-        obj.verificationStatus
-      ),
+      verificationStatus: obj.verificationStatus,
       verificationTimestamp: new BN(obj.verificationTimestamp),
+      validUntil: new BN(obj.validUntil),
       ebuf: obj.ebuf,
     });
   }

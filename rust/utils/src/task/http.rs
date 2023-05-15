@@ -1,8 +1,9 @@
 use crate::error::Error;
+use crate::task::json::json_parse_task;
 use reqwest;
 use serde_json::Value;
 
-pub async fn http_task(url: &str) -> Result<Value, Error> {
+pub async fn http_task(url: &str, path: Option<&str>) -> Result<Value, Error> {
     let response = reqwest::get(url)
         .await?
         .error_for_status()
@@ -13,6 +14,10 @@ pub async fn http_task(url: &str) -> Result<Value, Error> {
 
     // Parse the string into a serde_json Value
     let value = serde_json::from_str::<Value>(&text).unwrap_or(Value::String(text));
+
+    if let Some(p) = path {
+        return json_parse_task(value, p);
+    }
 
     Ok(value)
 }
@@ -35,7 +40,7 @@ mod tests {
             .with_body("Hello, world!")
             .create();
 
-        let response_text = http_task(url).await.unwrap();
+        let response_text = http_task(url, None).await.unwrap();
 
         assert_eq!(response_text, Value::String("Hello, world!".to_string()));
 
@@ -57,7 +62,7 @@ mod tests {
             .with_body("Not Found")
             .create();
 
-        let result = http_task(url).await;
+        let result = http_task(url, None).await;
 
         assert!(result.is_err());
 

@@ -14,11 +14,11 @@ export interface QuoteVerifyArgs {
 
 export interface QuoteVerifyAccounts {
   quote: PublicKey;
+  node: PublicKey;
   queue: PublicKey;
   verifierQueue: PublicKey;
   verifierNode: PublicKey;
-  verifiee: PublicKey;
-  authority: PublicKey;
+  verifierAuthority: PublicKey;
 }
 
 export const layout = borsh.struct([types.QuoteVerifyParams.layout('params')]);
@@ -30,11 +30,11 @@ export function quoteVerify(
 ) {
   const keys: Array<AccountMeta> = [
     { pubkey: accounts.quote, isSigner: false, isWritable: true },
+    { pubkey: accounts.node, isSigner: false, isWritable: false },
     { pubkey: accounts.queue, isSigner: false, isWritable: false },
     { pubkey: accounts.verifierQueue, isSigner: false, isWritable: false },
-    { pubkey: accounts.verifierNode, isSigner: true, isWritable: false },
-    { pubkey: accounts.verifiee, isSigner: false, isWritable: false },
-    { pubkey: accounts.authority, isSigner: false, isWritable: false },
+    { pubkey: accounts.verifierNode, isSigner: false, isWritable: false },
+    { pubkey: accounts.verifierAuthority, isSigner: true, isWritable: false },
   ];
   const identifier = Buffer.from([158, 203, 69, 10, 212, 218, 45, 184]);
   const buffer = Buffer.alloc(1000);

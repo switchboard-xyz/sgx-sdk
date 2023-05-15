@@ -187,8 +187,19 @@ sudo apt-get install -y \
     libsgx-urts \
     sgx-aesm-service \
     sgx-pck-id-retrieval-tool \
-    libsgx-dcap-quote-verify-dev \
-    sgx-dcap-pccs
+    libsgx-dcap-quote-verify-dev
+
+echo "
+Y
+Y
+65530
+N
+LAZY
+PWD!@#
+PWD!@#
+PWD!@#
+PWD!@#
+N" | sudo apt-get install -y sgx-dcap-pccs || true
 
 # Install the Intel SGX SDK
 sgx_bin_location="sgx_linux_x64_sdk_$SGX_SDK_VERSION.bin"

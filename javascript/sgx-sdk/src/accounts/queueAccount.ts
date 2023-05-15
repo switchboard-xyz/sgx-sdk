@@ -5,13 +5,13 @@ import {
   SystemProgram,
   TransactionSignature,
 } from '@solana/web3.js';
-import { BN } from '@switchboard-xyz/common';
 import * as errors from '../errors';
 import * as types from '../generated';
-import { queueAddMrSigner, queueRemoveMrSigner } from '../generated';
+// import { queueAddMrSigner, queueRemoveMrSigner } from '../generated';
 import { SwitchboardQuoteProgram } from '../SwitchboardQuoteProgram';
 import { TransactionObject } from '../TransactionObject';
 import { Account, OnAccountChangeCallback } from './account';
+import { NodeAccount, NodeInitWithPermissionsParams } from './nodeAccount';
 
 /**
  * Account type representing an oracle queue's configuration along with a buffer account holding a list of oracles that are actively heartbeating.
@@ -83,15 +83,13 @@ export class QueueAccount extends Account<types.ServiceQueueAccountData> {
       program,
       {
         params: {
-          allowAuthorityOverrideAfter: new BN(
-            params.allowAuthorityOverrideAfter
-          ),
+          allowAuthorityOverrideAfter: params.allowAuthorityOverrideAfter,
           requireAuthorityHeartbeatPermission:
             params.requireAuthorityHeartbeatPermission ?? false,
           requireUsagePermissions: params.requireUsagePermissions ?? false,
-          maxQuoteVerificationAge: new BN(params.maxQuoteVerificationAge),
+          maxQuoteVerificationAge: params.maxQuoteVerificationAge,
           reward: params.reward,
-          nodeTimeout: new BN(params.nodeTimeout),
+          nodeTimeout: params.nodeTimeout,
         },
       },
       {
@@ -142,12 +140,15 @@ export class QueueAccount extends Account<types.ServiceQueueAccountData> {
   ): Promise<TransactionObject> {
     const data = await this.loadData();
 
+    const mrEnclave = new Uint8Array(32);
+    mrEnclave.set(params.mrEnclave);
+
     return new TransactionObject(
       payer,
       [
-        queueAddMrSigner(
+        types.queueAddMrEnclave(
           this.program,
-          { params: { mrEnclave: [...new Uint8Array(params.mrEnclave)] } },
+          { params: { mrEnclave: [...mrEnclave] } },
           {
             queue: this.publicKey,
             authority: data.authority,
@@ -156,6 +157,36 @@ export class QueueAccount extends Account<types.ServiceQueueAccountData> {
       ],
       params.authority ? [params.authority] : []
     );
+  }
+
+  public async createNodeInstructions(
+    payer: PublicKey,
+    params: Omit<NodeInitWithPermissionsParams, 'queue'>
+  ): Promise<[NodeAccount, TransactionObject]> {
+    const queue = await this.loadData();
+
+    const [nodeAccount, nodeInit] = NodeAccount.createInstruction(
+      this.program,
+      payer,
+      {
+        ...params,
+        queue: this.publicKey,
+        queueAuthorityPubkey: queue.authority,
+      }
+    );
+
+    return [nodeAccount, nodeInit];
+  }
+
+  public async createNode(
+    params: Omit<NodeInitWithPermissionsParams, 'queue'>
+  ): Promise<[NodeAccount, TransactionSignature]> {
+    const [nodeAccount, nodeInit] = await this.createNodeInstructions(
+      this.program.walletPubkey,
+      params
+    );
+    const txnSignature = await this.program.signAndSend(nodeInit);
+    return [nodeAccount, txnSignature];
   }
 
   public async addMrEnclave(
@@ -178,7 +209,7 @@ export class QueueAccount extends Account<types.ServiceQueueAccountData> {
     return new TransactionObject(
       payer,
       [
-        queueRemoveMrSigner(
+        types.queueRemoveMrEnclave(
           this.program,
           { params: { mrEnclave: [...new Uint8Array(params.mrEnclave)] } },
           {

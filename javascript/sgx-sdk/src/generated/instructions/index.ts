@@ -2,6 +2,16 @@ export { quoteInit } from './quoteInit';
 export type { QuoteInitArgs, QuoteInitAccounts } from './quoteInit';
 export { quoteVerify } from './quoteVerify';
 export type { QuoteVerifyArgs, QuoteVerifyAccounts } from './quoteVerify';
+export { quoteInitSimple } from './quoteInitSimple';
+export type {
+  QuoteInitSimpleArgs,
+  QuoteInitSimpleAccounts,
+} from './quoteInitSimple';
+export { quoteVerifySimple } from './quoteVerifySimple';
+export type {
+  QuoteVerifySimpleArgs,
+  QuoteVerifySimpleAccounts,
+} from './quoteVerifySimple';
 export { queueInit } from './queueInit';
 export type { QueueInitArgs, QueueInitAccounts } from './queueInit';
 export { queueSendRequest } from './queueSendRequest';
@@ -9,16 +19,16 @@ export type {
   QueueSendRequestArgs,
   QueueSendRequestAccounts,
 } from './queueSendRequest';
-export { queueAddMrSigner } from './queueAddMrSigner';
+export { queueAddMrEnclave } from './queueAddMrEnclave';
 export type {
-  QueueAddMrSignerArgs,
-  QueueAddMrSignerAccounts,
-} from './queueAddMrSigner';
-export { queueRemoveMrSigner } from './queueRemoveMrSigner';
+  QueueAddMrEnclaveArgs,
+  QueueAddMrEnclaveAccounts,
+} from './queueAddMrEnclave';
+export { queueRemoveMrEnclave } from './queueRemoveMrEnclave';
 export type {
-  QueueRemoveMrSignerArgs,
-  QueueRemoveMrSignerAccounts,
-} from './queueRemoveMrSigner';
+  QueueRemoveMrEnclaveArgs,
+  QueueRemoveMrEnclaveAccounts,
+} from './queueRemoveMrEnclave';
 export { permissionInit } from './permissionInit';
 export type {
   PermissionInitArgs,

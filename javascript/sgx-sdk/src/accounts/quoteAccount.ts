@@ -13,6 +13,7 @@ import { TransactionObject } from '../TransactionObject';
 import { Account } from './account';
 import { NodeAccount } from './nodeAccount';
 import { QueueAccount } from './queueAccount';
+import { BN } from '@switchboard-xyz/common';
 
 /**
  * Data: {@linkcode types.QuoteAccountData}
@@ -20,12 +21,16 @@ import { QueueAccount } from './queueAccount';
 export class QuoteAccount extends Account<types.QuoteAccountData> {
   static accountName = 'QuoteAccountData';
 
-  public static size = 372;
+  get size() {
+    return 0;
+  }
 
-  /**
-   * Returns the size of an on-chain {@linkcode QuoteAccount}.
-   */
-  public readonly size = this.program.account.QuoteAccountData.size;
+  // public static size = 372;
+
+  // /**
+  //  * Returns the size of an on-chain {@linkcode QuoteAccount}.
+  //  */
+  // public readonly size = this.program.account.QuoteAccountData.size;
 
   /**
    * Retrieve and decode the {@linkcode types.QuoteAccountData} stored in this account.
@@ -53,6 +58,12 @@ export class QuoteAccount extends Account<types.QuoteAccountData> {
     const queueAccount = new QueueAccount(program, node.queue);
     const queue = await queueAccount.loadData();
 
+    // console.log(
+    //   `DATA (len): ${params.data.length}\nDATA: [${new Uint8Array(
+    //     params.data
+    //   )}]`
+    // );
+
     const txns: Array<TransactionObject> = [];
     for (let i = 0; i < params.data.length; i += 512) {
       const tx = new TransactionObject(
@@ -76,6 +87,7 @@ export class QuoteAccount extends Account<types.QuoteAccountData> {
             {
               quote: keypair.publicKey,
               queue: queueAccount.publicKey,
+              queueAuthority: queue.authority,
               verifierQueue: queue.verifierQueue,
               node: nodeAccount.publicKey,
               authority: node.authority,
@@ -84,7 +96,7 @@ export class QuoteAccount extends Account<types.QuoteAccountData> {
             }
           ),
         ],
-        []
+        [keypair]
       );
 
       txns.push(tx);
@@ -127,16 +139,20 @@ export class QuoteAccount extends Account<types.QuoteAccountData> {
           this.program,
           {
             params: {
-              queueIdx: params.queueIdx,
+              // queueIdx: params.queueIdx,
+              timestamp: new BN(0),
             },
           },
           {
             quote: this.publicKey,
             queue: data.queue,
+            // TODO: Update
             verifierQueue: PublicKey.default,
+            // TODO: Update
             verifierNode: PublicKey.default,
-            verifiee: PublicKey.default,
-            authority: queue.authority,
+            // TODO: Update
+            node: PublicKey.default,
+            verifierAuthority: queue.authority,
           }
         ),
       ],
