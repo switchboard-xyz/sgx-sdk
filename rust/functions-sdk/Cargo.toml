@@ -1,0 +1,21 @@
+[package]
+name = "functions-sdk"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tokio = "1.26.0"
+clokwerk = "0.4.0"
+futures = "0.3.28"
+chrono = "0.4.24"
+anchor-client = "0.27.0"
+anchor-lang = "0.27.0"
+solana-sdk = "1.14.18"
+switchboard-attestation-client = {path="../attestation-client"}
+switchboard-utils = {path="../utils"}
+job_scheduler = "1.2.1"
+
+[features]
+solana = []
