@@ -222,7 +222,7 @@ impl<'info> VrfRequestRandomness<'info> {
     }
 
     fn to_account_infos(&self) -> Vec<AccountInfo<'info>> {
-        return vec![
+         vec![
             self.authority.clone(),
             self.vrf.clone(),
             self.oracle_queue.clone(),
@@ -235,12 +235,12 @@ impl<'info> VrfRequestRandomness<'info> {
             self.recent_blockhashes.clone(),
             self.program_state.clone(),
             self.token_program.clone(),
-        ];
+        ]
     }
 
     #[allow(unused_variables)]
     fn to_account_metas(&self, is_signer: Option<bool>) -> Vec<AccountMeta> {
-        return vec![
+         vec![
             AccountMeta {
                 pubkey: self.authority.key.clone(),
                 is_signer: true, // overwrite, authority has to sign
@@ -301,7 +301,7 @@ impl<'info> VrfRequestRandomness<'info> {
                 is_signer: self.token_program.is_signer,
                 is_writable: self.token_program.is_writable,
             },
-        ];
+        ]
     }
 }
 
@@ -365,7 +365,7 @@ impl<'info> VrfSetCallback<'info> {
 
     #[allow(unused_variables)]
     fn to_account_metas(&self, is_signer: Option<bool>) -> Vec<AccountMeta> {
-        return vec![
+        vec![
             AccountMeta {
                 pubkey: self.vrf.key.clone(),
                 is_signer: false,
@@ -376,7 +376,7 @@ impl<'info> VrfSetCallback<'info> {
                 is_signer: true,
                 is_writable: false,
             },
-        ];
+        ]
     }
 }
 
@@ -445,7 +445,7 @@ impl<'info> VrfClose<'info> {
         state_bump: u8,
         permission_bump: u8,
     ) -> ProgramResult {
-        let instruction = self.get_instruction(program.key.clone(), state_bump, permission_bump)?;
+        let instruction = self.get_instruction(*program.key, state_bump, permission_bump)?;
         let account_infos = self.to_account_infos();
 
         invoke(&instruction, &account_infos[..])
@@ -458,14 +458,14 @@ impl<'info> VrfClose<'info> {
         permission_bump: u8,
         signer_seeds: &[&[&[u8]]],
     ) -> ProgramResult {
-        let instruction = self.get_instruction(program.key.clone(), state_bump, permission_bump)?;
+        let instruction = self.get_instruction(*program.key, state_bump, permission_bump)?;
         let account_infos = self.to_account_infos();
 
         invoke_signed(&instruction, &account_infos[..], signer_seeds)
     }
 
     fn to_account_infos(&self) -> Vec<AccountInfo<'info>> {
-        return vec![
+        vec![
             self.authority.clone(),
             self.vrf.clone(),
             self.permission.clone(),
@@ -476,12 +476,12 @@ impl<'info> VrfClose<'info> {
             self.sol_dest.clone(),
             self.escrow_dest.to_account_info().clone(),
             self.token_program.clone(),
-        ];
+        ]
     }
 
     #[allow(unused_variables)]
     fn to_account_metas(&self, is_signer: Option<bool>) -> Vec<AccountMeta> {
-        return vec![
+        vec![
             AccountMeta {
                 pubkey: self.authority.key.clone(),
                 is_signer: true, // overwrite, authority has to sign
@@ -532,6 +532,6 @@ impl<'info> VrfClose<'info> {
                 is_signer: self.token_program.is_signer,
                 is_writable: self.token_program.is_writable,
             },
-        ];
+        ]
     }
 }

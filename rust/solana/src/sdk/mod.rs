@@ -2,11 +2,15 @@ use anchor_lang::prelude::*;
 use solana_program::pubkey;
 
 pub mod aggregator;
+pub mod attestation_permission;
+pub mod attestation_queue;
+pub mod attestation_state;
 pub mod buffer_relayer;
 pub mod crank;
 pub mod decimal;
 pub mod ecvrf;
 pub mod error;
+pub mod function;
 pub mod history_buffer;
 pub mod job;
 pub mod lease;
@@ -21,11 +25,15 @@ pub mod vrf_lite;
 pub mod vrf_pool;
 
 pub use aggregator::*;
+pub use attestation_permission::*;
+pub use attestation_queue::*;
+pub use attestation_state::*;
 pub use buffer_relayer::*;
 pub use crank::*;
 pub use decimal::*;
 pub use ecvrf::*;
 pub use error::SwitchboardError;
+pub use function::*;
 pub use history_buffer::*;
 pub use job::*;
 pub use lease::*;
@@ -41,17 +49,27 @@ pub use vrf_pool::*;
 
 /// Seed used to derive the SbState PDA.
 pub const STATE_SEED: &[u8] = b"STATE";
+
 /// Seed used to derive the PermissionAccountData PDA.
 pub const PERMISSION_SEED: &[u8] = b"PermissionAccountData";
+
 /// Seed used to derive the LeaseAccountData PDA.
 pub const LEASE_SEED: &[u8] = b"LeaseAccountData";
+
 /// Seed used to derive the OracleAccountData PDA.
 pub const ORACLE_SEED: &[u8] = b"OracleAccountData";
+
+/// Seed used to derive the SlidingWindow PDA.
+pub const SLIDING_RESULT_SEED: &[u8] = b"SlidingResultAccountData";
+
 /// Discriminator used for Switchboard buffer accounts.
 pub const BUFFER_DISCRIMINATOR: &[u8] = b"BUFFERxx";
 
-/// Seed used to derive the SlidingWindow PDA.
-const SLIDING_RESULT_SEED: &[u8] = b"SlidingResultAccountData";
+/// Seed used to derive the FunctionAccountData PDA.
+pub const FUNCTION_SEED: &[u8] = b"FunctionAccountData";
+
+/// Seed used to derive the QuoteAccountData PDA.
+pub const QUOTE_SEED: &[u8] = b"QuoteAccountData";
 
 /// Program id for the Switchboard oracle program
 pub const SWITCHBOARD_PROGRAM_ID: Pubkey = pubkey!("SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f");

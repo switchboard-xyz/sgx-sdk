@@ -1,7 +1,21 @@
 use anchor_lang::prelude::*;
+use anchor_lang::{Discriminator, Owner};
 use bytemuck::{Pod, Zeroable};
+use std::cell::Ref;
 
-#[account(zero_copy(unsafe))]
+use crate::SWITCHBOARD_ATTESTATION_PROGRAM_ID;
+
+#[repr(u8)]
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum VerificationStatus {
+    None = 0,
+    VerificationPending = 1 << 0,
+    VerificationFailure = 1 << 1,
+    VerificationSuccess = 1 << 2,
+    VerificationOverride = 1 << 3,
+}
+
+#[zero_copy(unsafe)]
 #[repr(packed)]
 pub struct QuoteAccountData {
     // If this key is not Pubkey::default, then this is the secured
@@ -34,4 +48,76 @@ pub struct QuoteAccountData {
     pub _ebuf: [u8; 992],
 }
 
-impl QuoteAccountData {}
+impl Discriminator for QuoteAccountData {
+    const DISCRIMINATOR: [u8; 8] = [205, 205, 167, 232, 0, 74, 44, 160];
+}
+impl Owner for QuoteAccountData {
+    fn owner() -> Pubkey {
+        SWITCHBOARD_ATTESTATION_PROGRAM_ID
+    }
+}
+unsafe impl Pod for QuoteAccountData {}
+unsafe impl Zeroable for QuoteAccountData {}
+
+impl QuoteAccountData {
+    /// Returns the deserialized Switchboard Quote account
+    ///
+    /// # Arguments
+    ///
+    /// * `quote_account_info` - A Solana AccountInfo referencing an existing Switchboard QuoteAccount
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// use switchboard_v2::QuoteAccountData;
+    ///
+    /// let quote_account = QuoteAccountData::new(quote_account_info)?;
+    /// ```
+    pub fn new<'info>(
+        quote_account_info: &'info AccountInfo<'info>,
+    ) -> anchor_lang::Result<Ref<'info, QuoteAccountData>> {
+        let data = quote_account_info.try_borrow_data()?;
+        if data.len() < QuoteAccountData::discriminator().len() {
+            return Err(ErrorCode::AccountDiscriminatorNotFound.into());
+        }
+
+        let mut disc_bytes = [0u8; 8];
+        disc_bytes.copy_from_slice(&data[..8]);
+        if disc_bytes != QuoteAccountData::discriminator() {
+            return Err(ErrorCode::AccountDiscriminatorMismatch.into());
+        }
+
+        Ok(Ref::map(data, |data| {
+            bytemuck::from_bytes(&data[8..std::mem::size_of::<QuoteAccountData>() + 8])
+        }))
+    }
+
+    /// Returns the deserialized Switchboard Quote account
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - A Solana AccountInfo's data buffer
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// use switchboard_v2::QuoteAccountData;
+    ///
+    /// let quote_account = QuoteAccountData::new(quote_account_info.try_borrow_data()?)?;
+    /// ```
+    pub fn new_from_bytes(data: &[u8]) -> anchor_lang::Result<&QuoteAccountData> {
+        if data.len() < QuoteAccountData::discriminator().len() {
+            return Err(ErrorCode::AccountDiscriminatorNotFound.into());
+        }
+
+        let mut disc_bytes = [0u8; 8];
+        disc_bytes.copy_from_slice(&data[..8]);
+        if disc_bytes != QuoteAccountData::discriminator() {
+            return Err(ErrorCode::AccountDiscriminatorMismatch.into());
+        }
+
+        Ok(bytemuck::from_bytes(
+            &data[8..std::mem::size_of::<QuoteAccountData>() + 8],
+        ))
+    }
+}
