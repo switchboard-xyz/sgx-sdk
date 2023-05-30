@@ -31,4 +31,6 @@ pub enum SwitchboardError {
     AllowedVarianceExceeded,
     #[msg("Invalid function input")]
     InvalidFunctionInput,
+    #[msg("Failed to compute the PDA")]
+    PdaDerivationError,
 }

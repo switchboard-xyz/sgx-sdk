@@ -3,7 +3,7 @@ use anchor_lang::{Discriminator, Owner};
 use bytemuck::{Pod, Zeroable};
 use std::cell::Ref;
 
-use crate::SWITCHBOARD_ATTESTATION_PROGRAM_ID;
+use crate::{SwitchboardError, QUOTE_SEED, SWITCHBOARD_ATTESTATION_PROGRAM_ID};
 
 #[repr(u8)]
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -119,5 +119,15 @@ impl QuoteAccountData {
         Ok(bytemuck::from_bytes(
             &data[8..std::mem::size_of::<QuoteAccountData>() + 8],
         ))
+    }
+
+    pub fn get_pda_pubkey(&self, function_pubkey: &Pubkey) -> anchor_lang::Result<Pubkey> {
+        let pda_key = Pubkey::create_program_address(
+            &[QUOTE_SEED, function_pubkey.as_ref(), &[self.bump]],
+            &SWITCHBOARD_ATTESTATION_PROGRAM_ID,
+        )
+        .map_err(|_| SwitchboardError::PdaDerivationError)?;
+
+        Ok(pda_key)
     }
 }

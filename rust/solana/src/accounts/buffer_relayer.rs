@@ -1,6 +1,4 @@
-use super::error::SwitchboardError;
-use super::SWITCHBOARD_PROGRAM_ID;
-use anchor_lang::prelude::*;
+use crate::*;
 use anchor_lang::{Discriminator, Owner};
 
 #[derive(AnchorDeserialize, Default, Debug)]
