@@ -15,7 +15,7 @@ pub enum VerificationStatus {
     VerificationOverride = 1 << 3,
 }
 
-#[zero_copy(unsafe)]
+#[zero_copy]
 #[repr(packed)]
 pub struct QuoteAccountData {
     // If this key is not Pubkey::default, then this is the secured
@@ -69,7 +69,7 @@ impl QuoteAccountData {
     /// # Examples
     ///
     /// ```ignore
-    /// use switchboard_v2::QuoteAccountData;
+    /// use switchboard_solana::QuoteAccountData;
     ///
     /// let quote_account = QuoteAccountData::new(quote_account_info)?;
     /// ```
@@ -101,7 +101,7 @@ impl QuoteAccountData {
     /// # Examples
     ///
     /// ```ignore
-    /// use switchboard_v2::QuoteAccountData;
+    /// use switchboard_solana::QuoteAccountData;
     ///
     /// let quote_account = QuoteAccountData::new(quote_account_info.try_borrow_data()?)?;
     /// ```

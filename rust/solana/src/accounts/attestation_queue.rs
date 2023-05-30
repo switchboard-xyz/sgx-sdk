@@ -5,7 +5,7 @@ use std::cell::Ref;
 
 use crate::SWITCHBOARD_ATTESTATION_PROGRAM_ID;
 
-#[zero_copy(unsafe)]
+#[zero_copy]
 #[repr(packed)]
 pub struct AttestationQueueAccountData {
     // Authority controls adding/removing allowed enclave measurements
@@ -51,7 +51,7 @@ impl AttestationQueueAccountData {
     /// # Examples
     ///
     /// ```ignore
-    /// use switchboard_v2::AttestationQueueAccountData;
+    /// use switchboard_solana::AttestationQueueAccountData;
     ///
     /// let attestation_queue = AttestationQueueAccountData::new(attestation_queue_account_info)?;
     /// ```
@@ -83,7 +83,7 @@ impl AttestationQueueAccountData {
     /// # Examples
     ///
     /// ```ignore
-    /// use switchboard_v2::AttestationQueueAccountData;
+    /// use switchboard_solana::AttestationQueueAccountData;
     ///
     /// let attestation_queue = AttestationQueueAccountData::new(attestation_queue_account_info.try_borrow_data()?)?;
     /// ```

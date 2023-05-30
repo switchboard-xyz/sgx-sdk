@@ -1,7 +1,9 @@
 pub mod error;
 pub use error::*;
 
+#[cfg(feature = "sgx")]
 pub mod sgx;
+#[cfg(feature = "sgx")]
 pub use sgx::*;
 
 use serde::{Deserialize, Serialize};

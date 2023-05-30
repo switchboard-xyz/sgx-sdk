@@ -8,7 +8,7 @@ use std::cell::Ref;
 // VrfSetCallback
 // VrfClose
 
-#[account(zero_copy(unsafe))]
+#[account(zero_copy)]
 #[repr(packed)]
 pub struct VrfAccountData {
     /// The current status of the VRF account.
@@ -51,7 +51,7 @@ impl VrfAccountData {
     /// # Examples
     ///
     /// ```ignore
-    /// use switchboard_v2::VrfAccountData;
+    /// use switchboard_solana::VrfAccountData;
     ///
     /// let vrf = VrfAccountData::new(vrf_account_info)?;
     /// ```
@@ -83,7 +83,7 @@ impl VrfAccountData {
     /// # Examples
     ///
     /// ```ignore
-    /// use switchboard_v2::VrfAccountData;
+    /// use switchboard_solana::VrfAccountData;
     ///
     /// let vrf = VrfAccountData::new(vrf_account_info.try_borrow_data()?)?;
     /// ```
@@ -113,7 +113,7 @@ impl VrfAccountData {
     /// # Examples
     ///
     /// ```ignore
-    /// use switchboard_v2::VrfAccountData;
+    /// use switchboard_solana::VrfAccountData;
     ///
     /// ```
     pub fn get_result(&self) -> anchor_lang::Result<[u8; 32]> {

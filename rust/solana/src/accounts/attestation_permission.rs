@@ -5,7 +5,7 @@ use std::cell::Ref;
 
 use crate::SWITCHBOARD_ATTESTATION_PROGRAM_ID;
 
-#[zero_copy(unsafe)]
+#[zero_copy]
 #[repr(packed)]
 pub struct AttestationPermissionAccountData {
     pub authority: Pubkey,
@@ -38,7 +38,7 @@ impl AttestationPermissionAccountData {
     /// # Examples
     ///
     /// ```ignore
-    /// use switchboard_v2::AttestationPermissionAccountData;
+    /// use switchboard_solana::AttestationPermissionAccountData;
     ///
     /// let permissions = AttestationPermissionAccountData::new(permission_account_info)?;
     /// ```
@@ -72,7 +72,7 @@ impl AttestationPermissionAccountData {
     /// # Examples
     ///
     /// ```ignore
-    /// use switchboard_v2::AttestationPermissionAccountData;
+    /// use switchboard_solana::AttestationPermissionAccountData;
     ///
     /// let permissions = AttestationPermissionAccountData::new(permission_account_info.try_borrow_data()?)?;
     /// ```
