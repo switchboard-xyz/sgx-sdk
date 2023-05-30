@@ -1,8 +1,8 @@
 #![allow(clippy::result_large_err)]
 
-use anchor_client::solana_sdk::signer::keypair::{keypair_from_seed, Keypair};
 use anchor_lang::prelude::*;
 use solana_program::pubkey;
+use solana_sdk::signer::keypair::{keypair_from_seed, Keypair};
 use std::sync::Arc;
 use switchboard_common::Gramine;
 
