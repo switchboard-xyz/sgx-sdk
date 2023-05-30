@@ -26,8 +26,8 @@ fi
 # /usr/bin/node /opt/intel/sgx-dcap-pccs/pccs_server.js &
 
 # Detect SGX drivers
-cd /sgx-detect
-./sgx-detect
+# cd /sgx-detect
+# ./sgx-detect
 
 # Start SGX-enabled application
 echo "Starting enclave.."

@@ -7,10 +7,16 @@ set -eo pipefail
 docker_verify_auth
 docker_set_builder "sgxbuilder"
 
+# docker buildx build \
+#     -t switchboardlabs/sgx-function:beta \
+#     --push \
+#     -f "$(normalize_project_path docker/Dockerfile.base)" \
+#     --cache-to type=registry,ref=switchboardlabs/sgx-function:buildcache \
+#     --cache-from type=registry,ref=switchboardlabs/sgx-function:buildcache \
+#     "$(normalize_project_path docker)"
+
 docker buildx build \
     -t switchboardlabs/sgx-function:beta \
     --push \
     -f "$(normalize_project_path docker/Dockerfile.base)" \
-    --cache-to type=registry,ref=switchboardlabs/sgx-function:buildcache \
-    --cache-from type=registry,ref=switchboardlabs/sgx-function:buildcache \
     "$(normalize_project_path docker)"

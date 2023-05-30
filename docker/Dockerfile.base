@@ -41,9 +41,6 @@ RUN cargo install cargo-strip
 # Restart the AESM service
 RUN /restart_aesm.sh
 
-# Configure SGX-detect
-WORKDIR /sgx-detect
-RUN wget https://download.fortanix.com/sgx-detect/ubuntu20.04/sgx-detect && \
-    chmod a+x sgx-detect
+WORKDIR /app
 
 CMD ["bash", "/boot.sh"]
