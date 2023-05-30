@@ -2,12 +2,13 @@
 name = "switchboard-common"
 version = "0.1.0"
 edition = "2021"
-description = "A Rust library to interact with Switchboard V2 accounts."
+description = "Common Switchboard types and utilities"
 readme = "README.md"
-keywords = ["switchboard", "oracle", "solana"]
+keywords = ["switchboard", "oracle", "solana", "solidity"]
 homepage = "https://docs.switchboard.xyz"
 repository = "https://github.com/switchboard-xyz/sgx-sdk/tree/main/rust/common"
-documentation = "https://docs.rs/switchboard-v2/"
+license = "MIT"
+documentation = "https://docs.rs/switchboard-common/"
 
 [dependencies]
 sha2 = "0.10.6"
