@@ -116,6 +116,8 @@ importers:
 
   rust/common: {}
 
+  rust/evm: {}
+
   rust/solana: {}
 
   rust/utils: {}

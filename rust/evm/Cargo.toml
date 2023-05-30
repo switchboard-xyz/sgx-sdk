@@ -12,6 +12,3 @@ documentation = "https://docs.switchboard.xyz"
 [dependencies]
 # switchboard-common = { path = "../common" }
 ethers = { version = "2", default-features = false, features = ["abigen"] }
-ethers-core = "2.0.6"
-signature = "2.0.0"
-zeroize = "1.3"
