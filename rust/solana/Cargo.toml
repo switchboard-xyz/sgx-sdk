@@ -6,9 +6,9 @@ description = "A Rust library to interact with Switchboard accounts."
 readme = "README.md"
 keywords = ["switchboard", "oracle", "solana"]
 homepage = "https://docs.switchboard.xyz"
-repository = "https://github.com/switchboard-xyz/sbv2-solana/tree/main/rust/switchboard-solana"
+repository = "https://github.com/switchboard-xyz/sgx-sdk/tree/main/rust/solana"
 license = "MIT"
-documentation = "https://docs.rs/switchboard-solana/"
+documentation = "https://docs.switchboard.xyz"
 
 [lib]
 crate-type = ["cdylib", "lib"]
@@ -31,3 +31,4 @@ solana-program = ">= 1.13.5, < 1.15.0"
 winnow = "=0.4.1"
 toml_edit = "=0.19.8"
 toml_datetime = "=0.6.1"
+zeroize = "1.3"
