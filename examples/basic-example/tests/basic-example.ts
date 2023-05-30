@@ -3,13 +3,7 @@ import { Program } from "@coral-xyz/anchor";
 import { BasicExample } from "../target/types/basic_example";
 import { sleep } from "@switchboard-xyz/common";
 import { assert } from "console";
-import {
-  QueueAccount,
-  SwitchboardQuoteProgram,
-  PROGRAM_ID,
-  NodeAccount,
-  QuoteAccount,
-} from "@switchboard-xyz/sgx";
+
 import fs from "fs";
 import path from "path";
 import { PublicKey } from "@solana/web3.js";
@@ -75,61 +69,9 @@ describe("basic-example", () => {
       program.programId
     );
 
-  let switchboard: SwitchboardQuoteProgram;
-  let verifierQueueAccount: QueueAccount;
-  let serviceQueueAccount: QueueAccount;
   let mrEnclave: Buffer;
-  let nodeAccount: NodeAccount;
-  let quoteAccount: QuoteAccount;
 
-  before(async () => {
-    switchboard = await SwitchboardQuoteProgram.fromProvider(
-      program.provider as anchor.AnchorProvider,
-      PROGRAM_ID
-    );
-
-    [verifierQueueAccount] = await QueueAccount.create(switchboard, {
-      authority: switchboard.walletPubkey,
-      allowAuthorityOverrideAfter: 60,
-      requireAuthorityHeartbeatPermission: true,
-      requireUsagePermissions: false,
-      maxQuoteVerificationAge: 604800,
-      reward: 0,
-      nodeTimeout: 180,
-    });
-
-    [serviceQueueAccount] = await QueueAccount.create(switchboard, {
-      verifierQueue: verifierQueueAccount.publicKey,
-      allowAuthorityOverrideAfter: 60, // do we need this?
-      authority: switchboard.walletPubkey,
-      requireAuthorityHeartbeatPermission: true,
-      requireUsagePermissions: false,
-      maxQuoteVerificationAge: 604800,
-      reward: 0,
-      nodeTimeout: 180,
-    });
-
-    mrEnclave = getMrEnclave();
-
-    await verifierQueueAccount.addMrEnclave({ mrEnclave });
-
-    [nodeAccount] = await NodeAccount.create(switchboard, {
-      authority: switchboard.walletPubkey,
-      queue: verifierQueueAccount.publicKey,
-      queueAuthorityPubkey: switchboard.walletPubkey,
-      enable: true,
-    });
-
-    [quoteAccount] = await nodeAccount.createQuote({
-      data: mrEnclave,
-    });
-
-    // console.log(
-    //   await program.provider.connection.getAccountInfo(quoteAccount.publicKey)
-    // );
-
-    // await nodeAccount.heartbeat({ quote: quoteAccount.publicKey });
-  });
+  before(async () => {});
 
   it("Is initialized!", async () => {
     const station = await program.account.weatherStation.fetchNullable(

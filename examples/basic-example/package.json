@@ -12,8 +12,7 @@
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.27.0",
-    "@switchboard-xyz/common": "^2.1.33",
-    "@switchboard-xyz/sgx": "workspace:^"
+    "@switchboard-xyz/common": "^2.1.33"
   },
   "devDependencies": {
     "chai": "^4.3.4",
