@@ -8,7 +8,7 @@ docker_verify_auth
 docker_set_builder "sgxbuilder"
 
 docker buildx build \
-    -t switchboardlabs/sgx-function:latest \
+    -t switchboardlabs/sgx-function:beta \
     --push \
     -f "$(normalize_project_path docker/Dockerfile.base)" \
     --cache-to type=registry,ref=switchboardlabs/sgx-function:buildcache \
