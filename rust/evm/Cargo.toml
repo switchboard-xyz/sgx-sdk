@@ -1,0 +1,17 @@
+[package]
+name = "switchboard-evm"
+version = "0.1.0"
+edition = "2021"
+description = "A Rust library to interact with Switchboard V2 accounts."
+readme = "README.md"
+keywords = ["switchboard", "oracle", "solana"]
+homepage = "https://docs.switchboard.xyz"
+repository = "https://github.com/switchboard-xyz/sgx-sdk/tree/main/rust/common"
+documentation = "https://docs.rs/switchboard-v2/"
+
+[dependencies]
+switchboard-common = { path = "../common" }
+
+bytemuck = "1.13.1"
+superslice = "1"
+

@@ -1,0 +1,8 @@
+{
+  "name": "switchboard-evm",
+  "scripts": {
+    "build": "cargo build -p switchboard-evm",
+    "lint": "cargo fmt -p switchboard-evm",
+    "test": "cargo test -p switchboard-evm"
+  }
+}

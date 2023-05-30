@@ -1,11 +1,12 @@
 pub mod error;
+pub use error::Error;
+
 #[cfg(feature = "solana")]
 pub mod solana;
-pub mod task;
-
-pub use error::Error;
 #[cfg(feature = "solana")]
 pub use solana::*;
+
+pub mod task;
 pub use task::*;
 
 pub use jsonpath_rust as jsonpath;

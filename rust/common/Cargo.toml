@@ -1,0 +1,18 @@
+[package]
+name = "switchboard-common"
+version = "0.1.0"
+edition = "2021"
+description = "A Rust library to interact with Switchboard V2 accounts."
+readme = "README.md"
+keywords = ["switchboard", "oracle", "solana"]
+homepage = "https://docs.switchboard.xyz"
+repository = "https://github.com/switchboard-xyz/sgx-sdk/tree/main/rust/common"
+documentation = "https://docs.rs/switchboard-v2/"
+
+[dependencies]
+sha2 = "0.10.6"
+getrandom = "0.2.8"
+serde = { version = "1.0.163", features = ["derive"] }
+serde_json = "1.0.96"
+sgx-quote = "0.1.0"
+hex = { version = "0.4.3", features = ["serde"] }
