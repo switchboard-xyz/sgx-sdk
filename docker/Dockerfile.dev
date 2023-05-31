@@ -1,0 +1,49 @@
+# syntax=docker/dockerfile:1.4
+FROM switchboardlabs/sgx-function:beta AS builder
+
+ARG EXAMPLE_NAME=basic-example
+ARG CARGO_NAME=app
+
+# Add Azure DCAP registry
+# RUN curl -fsSLo /usr/share/keyrings/microsoft.asc https://packages.microsoft.com/keys/microsoft.asc && \
+#     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.asc] https://packages.microsoft.com/ubuntu/20.04/prod focal main" | \
+#     tee /etc/apt/sources.list.d/msprod.list
+
+
+# RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+#     --mount=target=/var/cache/apt,type=cache,sharing=locked \
+#     rm -f /etc/apt/apt.conf.d/docker-clean && \
+#     apt-get update && \
+#     apt-get -y --no-install-recommends install \
+#     libssl-dev \
+#     libcurl4-openssl-dev \
+#     openssl \
+#     libssl-dev
+
+# WORKDIR /home/root/ssl_key
+
+# Generate OpenSSL Certificates
+# RUN openssl genrsa -out private.pem 2048 && \
+#     openssl req -new -key private.pem -out csr.pem -subj "/CN=localhost" -addext "subjectAltName = DNS:localhost,IP:127.0.0.1,IP:0.0.0.0" && \
+#     openssl x509 -req -days 365 -in csr.pem -signkey private.pem -out file.crt && \
+#     cp file.crt /usr/local/share/ca-certificates/ && \
+#     update-ca-certificates
+
+WORKDIR /home/root/sgx-sdk
+COPY . .
+
+WORKDIR /home/root/sgx-sdk/examples/${EXAMPLE_NAME}/sgx-function
+
+# Build the release binary
+RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/home/root/sgx-oracle/target \
+    cargo build --release && \
+    mv target/release/${CARGO_NAME} /sgx/app
+
+FROM switchboardlabs/sgx-function:beta
+
+# Copy the binary
+WORKDIR /sgx
+COPY --from=builder /sgx/app /sgx/app
+
+# Get the measurement from the enclave
+RUN /get_measurement.sh
