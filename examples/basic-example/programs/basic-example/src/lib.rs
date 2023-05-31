@@ -1,7 +1,8 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program;
 
-use solana_switchboard_attestation_program_sdk::QuoteAccountData;
+// use solana_switchboard_attestation_program_sdk::QuoteAccountData;
+// use switchboard_solana::QuoteAccountData;
 
 declare_id!("2fqqasoquBUsE17q6bBAne5oYnNpRCExrhh7NKa2Nw1h");
 
