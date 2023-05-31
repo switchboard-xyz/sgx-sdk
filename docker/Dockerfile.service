@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.4
-FROM switchboardlabs/sgx-function AS builder
+FROM switchboardlabs/sgx-function:beta AS builder
 
 ARG CARGO_NAME=app
 
@@ -11,7 +11,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,targe
     cargo build --release && \
     mv /home/root/sgx-oracle/target/release/${CARGO_NAME} /sgx/app
 
-FROM switchboardlabs/sgx-function
+FROM switchboardlabs/sgx-function:beta
 
 # Copy the binary
 WORKDIR /sgx

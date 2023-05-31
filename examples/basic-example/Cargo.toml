@@ -1,6 +1,6 @@
 [workspace]
 members = [
-  "programs/basic-example1",
+  "programs/basic-example",
 ]
 
 # https://twitter.com/zhouzhuojie/status/1619078510697676800

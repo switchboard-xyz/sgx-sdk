@@ -1,6 +1,9 @@
 [workspace]
 members = [
-  "rust/*",
+  "rust/common", "rust/utils"
+]
+exclude = [
+  "rust/solana", "rust/evm"
 ]
 
 [profile.release]

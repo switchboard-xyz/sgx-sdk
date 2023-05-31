@@ -118,6 +118,8 @@ importers:
 
   rust/evm: {}
 
+  rust/solana: {}
+
   rust/utils: {}
 
 packages:

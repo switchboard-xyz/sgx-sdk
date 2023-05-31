@@ -1,132 +1,46 @@
-FROM ubuntu:20.04
+FROM gramineproject/gramine:v1.4 as builder
+
+ENV PATH=$PATH:/root/.cargo/bin/
 ENV DEBIAN_FRONTEND="noninteractive"
-ENV PATH="/root/.cargo/bin:${PATH}"
-ENV CPATH=/opt/intel/sgxsdk/include
+ENV DISTRO="ubuntu20.04-server"
+ENV SGX_DRIVER_VERSION="2.11.54c9c4c"
+ENV SGX_SDK_VERSION="2.19.100.3"
+ENV SGX_SDK_VERSION_SHORT="2.19"
+ENV UNAME="5.15.0-1035-azure"
 
-ARG BUILDTIME_SGX_SDK_VERSION="2.19.100.3"
-ENV SGX_SDK_VERSION=$BUILDTIME_SGX_SDK_VERSION
+RUN mkdir -p /data/protected_files
 
-ARG BUILDTIME_SGX_SDK_VERSION_SHORT="2.19"
-ENV SGX_SDK_VERSION_SHORT=$BUILDTIME_SGX_SDK_VERSION_SHORT
-
-# Create necessary directories
-RUN mkdir -p /etc/init && \
-    mkdir -p /var/run/aesmd/ && \
-    mkdir -p /data/protected_files && \
-    mkdir -p /app && \
-    mkdir -p /sgx && \
-    mkdir -p /sgx-detect && \
-    mkdir -p /opt/intel/sgx-dcap-pccs/ssl_key
-
-# Setup users
-RUN groupadd sgx_prv && \
-    usermod -a -G sgx_prv root
-
-# Install some build deps that shouldnt ever change
-RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-    --mount=target=/var/cache/apt,type=cache,sharing=locked \
-    rm -f /etc/apt/apt.conf.d/docker-clean && \
-    apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y curl git wget unzip
-
-# Add repositories and keys
-RUN curl -fsSLo /usr/share/keyrings/gramine-keyring.gpg https://packages.gramineproject.io/gramine-keyring.gpg && \
-    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/gramine-keyring.gpg] https://packages.gramineproject.io/ focal main" | tee /etc/apt/sources.list.d/gramine.list && \
-    curl -fsSLo /usr/share/keyrings/intel-sgx-deb.asc https://download.01.org/intel-sgx/sgx_repo/ubuntu/intel-sgx-deb.key && \
-    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/intel-sgx-deb.asc] https://download.01.org/intel-sgx/sgx_repo/ubuntu focal main" | tee /etc/apt/sources.list.d/intel-sgx.list && \
-    curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
-    curl https://sh.rustup.rs -sSf | bash -s -- -y
-
-# Install packages
-RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
-    --mount=target=/var/cache/apt,type=cache,sharing=locked \
-    rm -f /etc/apt/apt.conf.d/docker-clean && \
-    apt-get update && \
-    apt-get install -y \
-    build-essential \
-    clang \
-    cmake \
-    cracklib-runtime \
-    dbus \
-    debhelper \
-    libboost-dev \
-    libboost-system-dev \
-    libboost-thread-dev \
-    libcurl4-openssl-dev \
-    libprotobuf-c-dev \
-    libprotobuf-dev \
-    libssl-dev \
-    libsystemd0 \
-    lsb-release \
-    make \
-    net-tools \
-    nodejs \
-    ocaml-nox \
-    ocamlbuild \
-    pkgconf \
-    protobuf-c-compiler \
-    protobuf-compiler \
-    psmisc \
-    python3 \
-    reprepro \
-    runit \
-    silversearcher-ag \
-    systemd \
-    systemd-sysv \
-    vim \
-    gramine \
-    libsgx-ae-id-enclave \
-    libsgx-aesm-ecdsa-plugin \
-    libsgx-aesm-epid-plugin \
-    libsgx-aesm-launch-plugin \
-    libsgx-aesm-quote-ex-plugin \
-    libsgx-enclave-common-dbgsym \
-    libsgx-enclave-common-dev \
-    libsgx-epid \
-    libsgx-launch \
-    libsgx-quote-ex \
-    libsgx-uae-service \
-    libsgx-urts \
-    sgx-aesm-service \
-    sgx-pck-id-retrieval-tool \
-    libsgx-dcap-quote-verify-dev \
-    sgx-dcap-pccs
-
-# SGX SDK
-RUN wget -q https://download.01.org/intel-sgx/sgx-linux/${SGX_SDK_VERSION_SHORT}/distro/ubuntu20.04-server/sgx_linux_x64_sdk_${SGX_SDK_VERSION}.bin && \
-    chmod +x sgx_linux_x64_sdk_${SGX_SDK_VERSION}.bin && \
-    ./sgx_linux_x64_sdk_${SGX_SDK_VERSION}.bin --prefix=/opt/intel && \
-    echo "source /opt/intel/sgxsdk/environment" >> ~/.bashrc
-
-# Configure PCCS
-WORKDIR /opt/intel/sgx-dcap-pccs
-RUN npm i
-COPY --chown=root:root ./configs/pccs.json /opt/intel/sgx-dcap-pccs/config/default.json
-
-# Generate OpenSSL Certificates
-RUN openssl genrsa -out ssl_key/private.pem 2048 && \
-    openssl req -new -key ssl_key/private.pem -out ssl_key/csr.pem -subj "/CN=localhost" -addext "subjectAltName = DNS:localhost,IP:127.0.0.1,IP:0.0.0.0" && \
-    openssl x509 -req -days 365 -in ssl_key/csr.pem -signkey ssl_key/private.pem -out ssl_key/file.crt && \
-    cp ssl_key/file.crt /usr/local/share/ca-certificates/ && \
-    update-ca-certificates
-
-# Configure az-dcap-client
-RUN wget -qO- https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
-    echo "deb [arch=amd64] https://packages.microsoft.com/ubuntu/20.04/prod focal main" | tee /etc/apt/sources.list.d/azdcap.list && \
-    apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install az-dcap-client && \
-    cp /usr/lib/libdcap_quoteprov.so /usr/lib/x86_64-linux-gnu/libdcap_quoteprov.so
-
-# Configure SGX-detect
-WORKDIR /sgx-detect
-RUN wget https://download.fortanix.com/sgx-detect/ubuntu20.04/sgx-detect && \
-    chmod a+x sgx-detect
-
+# Add startup files, user can overwrite these
 COPY --chown=root:root ./configs/boot.sh /boot.sh
 COPY --chown=root:root ./configs/app.manifest.template /app.manifest.template
 COPY --chown=root:root ./configs/get_measurement.sh /get_measurement.sh
 RUN chmod a+x /boot.sh && chmod a+x /get_measurement.sh
+
+# Add Azure DCAP registry
+RUN curl -fsSLo /usr/share/keyrings/microsoft.asc https://packages.microsoft.com/keys/microsoft.asc && \
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.asc] https://packages.microsoft.com/ubuntu/20.04/prod focal main" | \
+    tee /etc/apt/sources.list.d/msprod.list
+
+# install Azure DCAP library
+RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+    --mount=target=/var/cache/apt,type=cache,sharing=locked \
+    rm -f /etc/apt/apt.conf.d/docker-clean && \
+    apt-get update && \
+    apt-get -y --no-install-recommends install \
+    az-dcap-client \
+    xxd \
+    build-essential \
+    gcc \
+    clang \
+    wget
+
+# Install Rust
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+RUN cargo install cargo-strip
+
+# Restart the AESM service
+RUN /restart_aesm.sh
+
+WORKDIR /app
 
 CMD ["bash", "/boot.sh"]
