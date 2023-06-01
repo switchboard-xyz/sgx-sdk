@@ -208,11 +208,11 @@ impl<'info> FunctionVerify<'info> {
             .unwrap()
             .as_secs() as i64;
 
-        let fn_data: FunctionAccountData = load(&client, pubkeys.function).await?;
-        let enclave_signer_pubkey = to_pubkey(enclave_signer)?;
+        let fn_data: FunctionAccountData = load_account(&client, pubkeys.function).await?;
+        let enclave_signer_pubkey = crate::sgx::to_pubkey(enclave_signer)?;
         let attestation_queue = fn_data.attestation_queue;
         let queue_data: AttestationQueueAccountData =
-            crate::load(&client, attestation_queue).await?;
+            crate::load_account(&client, attestation_queue).await?;
         let escrow = fn_data.escrow;
         let (fn_quote, _) = Pubkey::find_program_address(
             &[b"QuoteAccountData", &pubkeys.function.to_bytes()],

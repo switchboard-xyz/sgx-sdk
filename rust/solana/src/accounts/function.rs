@@ -174,23 +174,11 @@ impl FunctionAccountData {
 
     #[cfg(feature = "sgx")]
     pub async fn fetch(
-        client: anchor_client::Client<
+        client: &anchor_client::Client<
             std::sync::Arc<anchor_client::solana_sdk::signer::keypair::Keypair>,
         >,
-        pubkey: &Pubkey,
+        pubkey: Pubkey,
     ) -> std::result::Result<Self, switchboard_common::Error> {
-        let data = client
-            .program(SWITCHBOARD_ATTESTATION_PROGRAM_ID)
-            .async_rpc()
-            .get_account_data(&pubkey)
-            .await
-            .map_err(|_| {
-                switchboard_common::Error::CustomMessage("anchor parse error".to_string())
-            })?;
-        Ok(
-            *bytemuck::try_from_bytes::<FunctionAccountData>(&data[8..]).map_err(|_| {
-                switchboard_common::Error::CustomMessage("anchor parse error".to_string())
-            })?,
-        )
+        crate::sgx::load_account(client, pubkey).await
     }
 }

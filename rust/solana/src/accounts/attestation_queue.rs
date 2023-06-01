@@ -102,4 +102,14 @@ impl AttestationQueueAccountData {
             &data[8..std::mem::size_of::<AttestationQueueAccountData>() + 8],
         ))
     }
+
+    #[cfg(feature = "sgx")]
+    pub async fn fetch(
+        client: &anchor_client::Client<
+            std::sync::Arc<anchor_client::solana_sdk::signer::keypair::Keypair>,
+        >,
+        pubkey: Pubkey,
+    ) -> std::result::Result<Self, switchboard_common::Error> {
+        crate::sgx::load_account(client, pubkey).await
+    }
 }
