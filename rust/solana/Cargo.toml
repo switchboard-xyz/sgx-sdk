@@ -16,7 +16,7 @@ name = "switchboard_solana"
 doctest = false
 
 [features]
-default = ["cpi", "sgx"]
+default = ["cpi"]
 no-entrypoint = []
 cpi = ["no-entrypoint"]
 sgx = [
