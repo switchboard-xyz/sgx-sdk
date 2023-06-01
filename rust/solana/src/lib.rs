@@ -9,6 +9,11 @@ pub use accounts::*;
 pub mod instructions;
 pub use instructions::*;
 
+#[cfg(feature = "sgx")]
+pub mod sgx;
+#[cfg(feature = "sgx")]
+pub use sgx::*;
+
 /// Seed used to derive the SbState PDA.
 pub const STATE_SEED: &[u8] = b"STATE";
 

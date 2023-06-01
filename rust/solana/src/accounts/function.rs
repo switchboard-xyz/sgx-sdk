@@ -140,4 +140,57 @@ impl FunctionAccountData {
 
         Ok(true)
     }
+
+    #[cfg(feature = "sgx")]
+    pub fn get_schedule(&self) -> Option<cron::Schedule> {
+        if self.schedule[0] == 0 {
+            return None;
+        }
+        let every_second = cron::Schedule::try_from("* * * * * *").unwrap();
+        let schedule = std::str::from_utf8(&self.schedule)
+            .unwrap_or("* * * * * *")
+            .trim_end_matches('\0');
+        let schedule = cron::Schedule::try_from(schedule);
+        Some(schedule.unwrap_or(every_second))
+    }
+
+    #[cfg(feature = "sgx")]
+    pub fn get_last_execution_datetime(&self) -> chrono::DateTime<chrono::Utc> {
+        chrono::DateTime::from_utc(
+            chrono::NaiveDateTime::from_timestamp_opt(self.last_execution_timestamp, 0).unwrap(),
+            chrono::Utc,
+        )
+    }
+
+    #[cfg(feature = "sgx")]
+    pub fn next_execution_timestamp(&self) -> Option<chrono::DateTime<chrono::Utc>> {
+        let schedule = self.get_schedule();
+        if schedule.is_none() {
+            return None;
+        }
+        let dt = self.get_last_execution_datetime();
+        schedule.unwrap().after(&dt).next()
+    }
+
+    #[cfg(feature = "sgx")]
+    pub async fn fetch(
+        client: anchor_client::Client<
+            std::sync::Arc<anchor_client::solana_sdk::signer::keypair::Keypair>,
+        >,
+        pubkey: &Pubkey,
+    ) -> std::result::Result<Self, switchboard_common::Error> {
+        let data = client
+            .program(SWITCHBOARD_ATTESTATION_PROGRAM_ID)
+            .async_rpc()
+            .get_account_data(&pubkey)
+            .await
+            .map_err(|_| {
+                switchboard_common::Error::CustomMessage("anchor parse error".to_string())
+            })?;
+        Ok(
+            *bytemuck::try_from_bytes::<FunctionAccountData>(&data[8..]).map_err(|_| {
+                switchboard_common::Error::CustomMessage("anchor parse error".to_string())
+            })?,
+        )
+    }
 }

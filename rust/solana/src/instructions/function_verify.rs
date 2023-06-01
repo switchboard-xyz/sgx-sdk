@@ -1,5 +1,5 @@
 use crate::*;
-use anchor_lang::Discriminator;
+use anchor_lang::{Discriminator, InstructionData};
 use anchor_spl::token::TokenAccount;
 use solana_program::entrypoint::ProgramResult;
 use solana_program::instruction::Instruction;
@@ -23,9 +23,9 @@ pub struct FunctionVerify<'info> {
     /// CHECK:
     #[account(mut)]
     pub receiver: Account<'info, TokenAccount>,
+    pub verifier_permission: AccountInfo<'info>,
+    pub fn_permission: AccountInfo<'info>,
     #[account(mut)]
-    pub permission: AccountInfo<'info>,
-    /// CHECK:
     pub state: AccountInfo<'info>,
     pub token_program: AccountInfo<'info>,
     #[account(signer)]
@@ -40,7 +40,10 @@ pub struct FunctionVerifyParams {
     pub is_failure: bool,
     pub mr_enclave: [u8; 32],
 }
-
+impl InstructionData for FunctionVerifyParams {}
+impl Discriminator for FunctionVerifyParams {
+    const DISCRIMINATOR: [u8; 8] = [210, 108, 154, 138, 198, 14, 53, 191];
+}
 impl Discriminator for FunctionVerify<'_> {
     const DISCRIMINATOR: [u8; 8] = [210, 108, 154, 138, 198, 14, 53, 191];
 }
@@ -111,7 +114,8 @@ impl<'info> FunctionVerify<'info> {
             self.attestation_queue.clone(),
             self.escrow.to_account_info().clone(),
             self.receiver.to_account_info().clone(),
-            self.permission.clone(),
+            self.verifier_permission.clone(),
+            self.fn_permission.clone(),
             self.state.clone(),
             self.token_program.clone(),
             self.payer.clone(),
@@ -158,9 +162,14 @@ impl<'info> FunctionVerify<'info> {
                 is_writable: self.receiver.to_account_info().is_writable,
             },
             AccountMeta {
-                pubkey: *self.permission.key,
-                is_signer: self.permission.is_signer,
-                is_writable: self.permission.is_writable,
+                pubkey: *self.verifier_permission.key,
+                is_signer: self.verifier_permission.is_signer,
+                is_writable: self.verifier_permission.is_writable,
+            },
+            AccountMeta {
+                pubkey: *self.fn_permission.key,
+                is_signer: self.fn_permission.is_signer,
+                is_writable: self.fn_permission.is_writable,
             },
             AccountMeta {
                 pubkey: *self.state.key,
@@ -181,6 +190,188 @@ impl<'info> FunctionVerify<'info> {
                 pubkey: *self.system_program.key,
                 is_signer: self.system_program.is_signer,
                 is_writable: self.system_program.is_writable,
+            },
+        ]
+    }
+
+    #[cfg(feature = "sgx")]
+    pub async fn build(
+        client: &anchor_client::Client<
+            std::sync::Arc<anchor_client::solana_sdk::signer::keypair::Keypair>,
+        >,
+        enclave_signer: std::sync::Arc<anchor_client::solana_sdk::signer::keypair::Keypair>,
+        pubkeys: &FunctionVerifyPubkeys,
+        mr_enclave: [u8; 32],
+    ) -> std::result::Result<Instruction, switchboard_common::error::Error> {
+        let current_time = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs() as i64;
+
+        let fn_data: FunctionAccountData = load(&client, pubkeys.function).await?;
+        let enclave_signer_pubkey = to_pubkey(enclave_signer)?;
+        let queue = fn_data.attestation_queue;
+        let queue_data: AttestationQueueAccountData = crate::load(&client, queue).await?;
+        let escrow = fn_data.escrow;
+        let (fn_quote, _) = Pubkey::find_program_address(
+            &[b"QuoteAccountData", &pubkeys.function.to_bytes()],
+            &SWITCHBOARD_ATTESTATION_PROGRAM_ID,
+        );
+        let (verifier_permission, _) = Pubkey::find_program_address(
+            &[
+                b"PermissionAccountData",
+                &queue_data.authority.to_bytes(),
+                &queue.to_bytes(),
+                &pubkeys.payer.to_bytes(),
+            ],
+            &SWITCHBOARD_ATTESTATION_PROGRAM_ID,
+        );
+        let (fn_permission, _) = Pubkey::find_program_address(
+            &[
+                b"PermissionAccountData",
+                &queue_data.authority.to_bytes(),
+                &queue.to_bytes(),
+                &pubkeys.function.to_bytes(),
+            ],
+            &SWITCHBOARD_ATTESTATION_PROGRAM_ID,
+        );
+        let (state, _) =
+            Pubkey::find_program_address(&[b"STATE"], &SWITCHBOARD_ATTESTATION_PROGRAM_ID);
+        let accounts = FunctionVerifyAccounts {
+            function: &pubkeys.function,
+            fn_signer: &enclave_signer_pubkey,
+            fn_quote: &fn_quote,
+            verifier_quote: &pubkeys.verifier,
+            attestation_queue: &queue,
+            escrow: &escrow,
+            receiver: &pubkeys.reward_receiver,
+            verifier_permission: &verifier_permission,
+            fn_permission: &fn_permission,
+            state: &state,
+            token_program: &anchor_spl::token::ID,
+            payer: &pubkeys.payer,
+            system_program: &anchor_lang::solana_program::system_program::ID,
+        };
+
+        let next_allowed_timestamp = fn_data
+            .next_execution_timestamp()
+            .map(|x| x.timestamp())
+            .unwrap_or(i64::MAX);
+
+        Ok(Self::build_ix(
+            accounts,
+            current_time,
+            next_allowed_timestamp,
+            false,
+            mr_enclave,
+        ))
+    }
+
+    #[cfg(feature = "sgx")]
+    fn build_ix(
+        accounts: FunctionVerifyAccounts,
+        observed_time: i64,
+        next_allowed_timestamp: i64,
+        is_failure: bool,
+        mr_enclave: [u8; 32],
+    ) -> Instruction {
+        Instruction {
+            program_id: SWITCHBOARD_ATTESTATION_PROGRAM_ID,
+            accounts: accounts.to_account_metas(None),
+            data: FunctionVerifyParams {
+                observed_time,
+                next_allowed_timestamp,
+                is_failure,
+                mr_enclave,
+            }
+            .data(),
+        }
+    }
+}
+
+#[cfg(feature = "sgx")]
+pub struct FunctionVerifyAccounts<'a> {
+    pub function: &'a Pubkey,
+    pub fn_signer: &'a Pubkey,
+    pub fn_quote: &'a Pubkey,
+    pub verifier_quote: &'a Pubkey,
+    pub attestation_queue: &'a Pubkey,
+    pub escrow: &'a Pubkey,
+    pub receiver: &'a Pubkey,
+    pub verifier_permission: &'a Pubkey,
+    pub fn_permission: &'a Pubkey,
+    pub state: &'a Pubkey,
+    pub token_program: &'a Pubkey,
+    pub payer: &'a Pubkey,
+    pub system_program: &'a Pubkey,
+}
+impl<'a> ToAccountMetas for FunctionVerifyAccounts<'a> {
+    fn to_account_metas(&self, _: Option<bool>) -> Vec<AccountMeta> {
+        vec![
+            AccountMeta {
+                pubkey: *self.function,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: *self.fn_signer,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: *self.fn_quote,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: *self.verifier_quote,
+                is_signer: true,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: *self.attestation_queue,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: *self.escrow,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: *self.receiver,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: *self.verifier_permission,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: *self.fn_permission,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: *self.state,
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: *self.token_program,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: *self.payer,
+                is_signer: true,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: *self.system_program,
+                is_signer: false,
+                is_writable: false,
             },
         ]
     }
