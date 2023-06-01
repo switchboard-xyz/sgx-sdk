@@ -116,8 +116,6 @@ importers:
 
   javascript/tsconfig: {}
 
-  lib/QuoteVerificationEnclave: {}
-
   rust/common: {}
 
   rust/evm: {}

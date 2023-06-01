@@ -1,3 +1,5 @@
+pub use anchor_client;
+
 use anchor_client::solana_sdk::commitment_config::CommitmentConfig;
 use anchor_client::solana_sdk::signer::keypair::{keypair_from_seed, Keypair};
 use anchor_client::solana_sdk::transaction::Transaction;
