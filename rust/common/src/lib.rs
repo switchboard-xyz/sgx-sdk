@@ -21,11 +21,6 @@ pub enum Chain {
     Starknet,
     Sui,
 }
-// impl Default for Chain {
-//     fn default() -> Self {
-//         Self::Unknown
-//     }
-// }
 
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
 pub struct FunctionResult {
@@ -37,4 +32,13 @@ pub struct FunctionResult {
     pub quote: Vec<u8>,
     pub program: Vec<u8>,
     pub data: Vec<u8>,
+}
+
+impl FunctionResult {
+    pub fn emit(&self) {
+        println!(
+            "FN_OUT: {}",
+            hex::encode(serde_json::to_string(&self).unwrap())
+        );
+    }
 }
