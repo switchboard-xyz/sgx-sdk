@@ -1,11 +1,11 @@
 use crate::{QuoteAccountData, SWITCHBOARD_ATTESTATION_PROGRAM_ID};
 use anchor_lang::prelude::*;
-use anchor_lang::{Discriminator, Owner};
+use anchor_lang::{Discriminator, Owner, ZeroCopy};
 use bytemuck::{Pod, Zeroable};
 use std::cell::Ref;
 
 #[repr(u8)]
-#[derive(Copy, Clone, Eq, PartialEq, AnchorSerialize, AnchorDeserialize)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, AnchorSerialize, AnchorDeserialize)]
 pub enum FunctionStatus {
     None = 0,
     Active = 1 << 0,
@@ -17,6 +17,7 @@ pub enum FunctionStatus {
 
 #[zero_copy]
 #[repr(packed)]
+#[derive(Debug, PartialEq)]
 pub struct FunctionAccountData {
     pub name: [u8; 64],
     pub metadata: [u8; 256],
@@ -34,20 +35,24 @@ pub struct FunctionAccountData {
     pub escrow: Pubkey,
     pub status: FunctionStatus,
     pub created_at: i64,
-    pub _ebuf: [u8; 1024],
+    pub is_triggered: bool,
+    pub _ebuf: [u8; 1023],
 }
+
+unsafe impl Pod for FunctionAccountData {}
+unsafe impl Zeroable for FunctionAccountData {}
 
 impl Discriminator for FunctionAccountData {
     const DISCRIMINATOR: [u8; 8] = [76, 139, 47, 44, 240, 182, 148, 200];
 }
+
 impl Owner for FunctionAccountData {
     fn owner() -> Pubkey {
         SWITCHBOARD_ATTESTATION_PROGRAM_ID
     }
 }
 
-unsafe impl Pod for FunctionAccountData {}
-unsafe impl Zeroable for FunctionAccountData {}
+impl ZeroCopy for FunctionAccountData {}
 
 impl FunctionAccountData {
     /// Returns the deserialized Switchboard Function account

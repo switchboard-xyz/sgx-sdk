@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_lang::{Discriminator, Owner};
+use anchor_lang::{Discriminator, Owner, ZeroCopy};
 use bytemuck::{Pod, Zeroable};
 use std::cell::Ref;
 
@@ -17,15 +17,14 @@ pub enum VerificationStatus {
 
 #[zero_copy]
 #[repr(packed)]
+#[derive(Debug)]
 pub struct QuoteAccountData {
     // If this key is not Pubkey::default, then this is the secured
     // signing key rather than the account key itself
     // Set for functions only
-    /// TODO: Add description
     pub delegated_secured_signer: Pubkey,
     pub bump: u8,
     // Set except for function quotes
-    /// TODO: Add description
     pub quote_registry: [u8; 32],
     /// Key to lookup the buffer data on IPFS or an alternative decentralized storage solution.
     pub registry_key: [u8; 64],
@@ -48,16 +47,19 @@ pub struct QuoteAccountData {
     pub _ebuf: [u8; 992],
 }
 
+unsafe impl Pod for QuoteAccountData {}
+unsafe impl Zeroable for QuoteAccountData {}
+
 impl Discriminator for QuoteAccountData {
     const DISCRIMINATOR: [u8; 8] = [205, 205, 167, 232, 0, 74, 44, 160];
 }
+
 impl Owner for QuoteAccountData {
     fn owner() -> Pubkey {
         SWITCHBOARD_ATTESTATION_PROGRAM_ID
     }
 }
-unsafe impl Pod for QuoteAccountData {}
-unsafe impl Zeroable for QuoteAccountData {}
+impl ZeroCopy for QuoteAccountData {}
 
 impl QuoteAccountData {
     /// Returns the deserialized Switchboard Quote account

@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_lang::{Discriminator, Owner};
+use anchor_lang::{Discriminator, Owner, ZeroCopy};
 use bytemuck::{Pod, Zeroable};
 use std::cell::Ref;
 
@@ -7,6 +7,7 @@ use crate::SWITCHBOARD_ATTESTATION_PROGRAM_ID;
 
 #[zero_copy]
 #[repr(packed)]
+#[derive(Debug)]
 pub struct AttestationPermissionAccountData {
     pub authority: Pubkey,
     pub permissions: u32,
@@ -17,16 +18,20 @@ pub struct AttestationPermissionAccountData {
     pub _ebuf: [u8; 256],
 }
 
+unsafe impl Pod for AttestationPermissionAccountData {}
+unsafe impl Zeroable for AttestationPermissionAccountData {}
+
 impl Discriminator for AttestationPermissionAccountData {
     const DISCRIMINATOR: [u8; 8] = [63, 83, 122, 184, 22, 35, 31, 70];
 }
+
 impl Owner for AttestationPermissionAccountData {
     fn owner() -> Pubkey {
         SWITCHBOARD_ATTESTATION_PROGRAM_ID
     }
 }
-unsafe impl Pod for AttestationPermissionAccountData {}
-unsafe impl Zeroable for AttestationPermissionAccountData {}
+
+impl ZeroCopy for AttestationPermissionAccountData {}
 
 impl AttestationPermissionAccountData {
     /// Returns the deserialized Switchboard AttestationPermission account

@@ -14,7 +14,10 @@ use std::str::FromStr;
 use std::sync::Arc;
 use switchboard_common::{Error, FunctionResult, Gramine};
 
-use crate::{FunctionVerify, SWITCHBOARD_ATTESTATION_PROGRAM_ID};
+// use crate::{FunctionVerify, SWITCHBOARD_ATTESTATION_PROGRAM_ID};
+
+use crate::attestation_program::FunctionVerify;
+use crate::SWITCHBOARD_ATTESTATION_PROGRAM_ID;
 
 pub fn generate_signer() -> Arc<Keypair> {
     let mut randomness = [0; 32];
