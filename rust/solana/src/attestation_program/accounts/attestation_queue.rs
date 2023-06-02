@@ -108,7 +108,13 @@ impl AttestationQueueAccountData {
         ))
     }
 
-    #[cfg(feature = "sgx")]
+    pub fn has_mr_enclave(&self, mr_enclave: &[u8]) -> bool {
+        self.mr_enclaves[..self.mr_enclaves_len as usize]
+            .iter()
+            .any(|x| x.to_vec() == mr_enclave.to_vec())
+    }
+
+    #[cfg(feature = "client")]
     pub async fn fetch(
         client: &anchor_client::Client<
             std::sync::Arc<anchor_client::solana_sdk::signer::keypair::Keypair>,

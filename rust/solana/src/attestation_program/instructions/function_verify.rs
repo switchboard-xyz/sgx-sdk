@@ -194,7 +194,7 @@ impl<'info> FunctionVerify<'info> {
         ]
     }
 
-    #[cfg(feature = "sgx")]
+    #[cfg(feature = "client")]
     pub async fn build(
         client: &anchor_client::Client<
             std::sync::Arc<anchor_client::solana_sdk::signer::keypair::Keypair>,
@@ -268,7 +268,7 @@ impl<'info> FunctionVerify<'info> {
         ))
     }
 
-    #[cfg(feature = "sgx")]
+    #[cfg(feature = "client")]
     fn build_ix(
         accounts: FunctionVerifyAccounts,
         observed_time: i64,
@@ -290,7 +290,7 @@ impl<'info> FunctionVerify<'info> {
     }
 }
 
-#[cfg(feature = "sgx")]
+#[cfg(feature = "client")]
 pub struct FunctionVerifyAccounts {
     pub function: Pubkey,
     pub fn_signer: Pubkey,
@@ -306,7 +306,7 @@ pub struct FunctionVerifyAccounts {
     pub payer: Pubkey,
     pub system_program: Pubkey,
 }
-#[cfg(feature = "sgx")]
+#[cfg(feature = "client")]
 impl ToAccountMetas for FunctionVerifyAccounts {
     fn to_account_metas(&self, _: Option<bool>) -> Vec<AccountMeta> {
         vec![

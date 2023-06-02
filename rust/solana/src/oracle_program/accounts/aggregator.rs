@@ -272,7 +272,14 @@ impl AggregatorAccountData {
         Ok(())
     }
 
-    #[cfg(feature = "sgx")]
+    pub fn is_expired(&self) -> Result<bool> {
+        if self.expiration == 0 {
+            return Ok(false);
+        }
+        Ok(Clock::get()?.unix_timestamp < self.expiration)
+    }
+
+    #[cfg(feature = "client")]
     pub async fn fetch(
         client: &anchor_client::Client<
             std::sync::Arc<anchor_client::solana_sdk::signer::keypair::Keypair>,

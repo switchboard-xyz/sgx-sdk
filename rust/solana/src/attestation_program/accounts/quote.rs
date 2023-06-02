@@ -133,7 +133,23 @@ impl QuoteAccountData {
         Ok(pda_key)
     }
 
-    #[cfg(feature = "sgx")]
+    pub fn is_valid(&self, clock: &Clock) -> bool {
+        if self.verification_status == VerificationStatus::VerificationOverride as u8 {
+            return true;
+        }
+        if self.verification_status == VerificationStatus::VerificationPending as u8 {
+            return false;
+        }
+        if self.verification_status == VerificationStatus::VerificationFailure as u8 {
+            return false;
+        }
+        if self.valid_until < clock.unix_timestamp {
+            return false;
+        }
+        true
+    }
+
+    #[cfg(feature = "client")]
     pub async fn fetch(
         client: &anchor_client::Client<
             std::sync::Arc<anchor_client::solana_sdk::signer::keypair::Keypair>,

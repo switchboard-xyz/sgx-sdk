@@ -146,7 +146,7 @@ impl FunctionAccountData {
         Ok(true)
     }
 
-    #[cfg(feature = "sgx")]
+    #[cfg(feature = "client")]
     pub fn get_schedule(&self) -> Option<cron::Schedule> {
         if self.schedule[0] == 0 {
             return None;
@@ -159,7 +159,7 @@ impl FunctionAccountData {
         Some(schedule.unwrap_or(every_second))
     }
 
-    #[cfg(feature = "sgx")]
+    #[cfg(feature = "client")]
     pub fn get_last_execution_datetime(&self) -> chrono::DateTime<chrono::Utc> {
         chrono::DateTime::from_utc(
             chrono::NaiveDateTime::from_timestamp_opt(self.last_execution_timestamp, 0).unwrap(),
@@ -167,7 +167,7 @@ impl FunctionAccountData {
         )
     }
 
-    #[cfg(feature = "sgx")]
+    #[cfg(feature = "client")]
     pub fn next_execution_timestamp(&self) -> Option<chrono::DateTime<chrono::Utc>> {
         let schedule = self.get_schedule();
         if schedule.is_none() {
@@ -177,7 +177,7 @@ impl FunctionAccountData {
         schedule.unwrap().after(&dt).next()
     }
 
-    #[cfg(feature = "sgx")]
+    #[cfg(feature = "client")]
     pub async fn fetch(
         client: &anchor_client::Client<
             std::sync::Arc<anchor_client::solana_sdk::signer::keypair::Keypair>,

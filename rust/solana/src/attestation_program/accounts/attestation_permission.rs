@@ -5,6 +5,12 @@ use std::cell::Ref;
 
 use crate::SWITCHBOARD_ATTESTATION_PROGRAM_ID;
 
+#[derive(Copy, Clone, Eq, PartialEq, AnchorSerialize, AnchorDeserialize)]
+pub enum SwitchboardAttestationPermission {
+    PermitNodeheartbeat = 1 << 0,
+    PermitQueueUsage = 1 << 1,
+}
+
 #[zero_copy]
 #[repr(packed)]
 #[derive(Debug)]
@@ -97,7 +103,11 @@ impl AttestationPermissionAccountData {
         ))
     }
 
-    #[cfg(feature = "sgx")]
+    pub fn has(&self, p: SwitchboardAttestationPermission) -> bool {
+        self.permissions & p as u32 != 0
+    }
+
+    #[cfg(feature = "client")]
     pub async fn fetch(
         client: &anchor_client::Client<
             std::sync::Arc<anchor_client::solana_sdk::signer::keypair::Keypair>,

@@ -19,7 +19,7 @@ doctest = false
 default = ["cpi"]
 no-entrypoint = []
 cpi = ["no-entrypoint"]
-sgx = [
+client = [
     "switchboard-common/sgx",
     "dep:anchor-client",
     "dep:bincode",

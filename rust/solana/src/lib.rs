@@ -9,9 +9,9 @@ pub use oracle_program::*;
 pub mod attestation_program;
 pub use attestation_program::*;
 
-#[cfg(feature = "sgx")]
+#[cfg(feature = "client")]
 pub mod sgx;
-#[cfg(feature = "sgx")]
+#[cfg(feature = "client")]
 pub use sgx::*;
 
 /// Seed used to derive the SbState PDA.
