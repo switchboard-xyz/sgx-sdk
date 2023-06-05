@@ -14,8 +14,9 @@ pub struct FunctionVerify<'info> {
     pub fn_signer: AccountInfo<'info>,
     /// CHECK:
     pub fn_quote: AccountInfo<'info>,
-    #[account(signer)]
     pub verifier_quote: AccountInfo<'info>,
+    #[account(signer)]
+    pub secured_signer: AccountInfo<'info>,
     pub attestation_queue: AccountInfo<'info>,
     /// CHECK:
     #[account(mut)]
@@ -111,6 +112,7 @@ impl<'info> FunctionVerify<'info> {
             self.fn_signer.clone(),
             self.fn_quote.clone(),
             self.verifier_quote.clone(),
+            self.secured_signer.clone(),
             self.attestation_queue.clone(),
             self.escrow.to_account_info().clone(),
             self.receiver.to_account_info().clone(),
@@ -143,6 +145,11 @@ impl<'info> FunctionVerify<'info> {
             },
             AccountMeta {
                 pubkey: *self.verifier_quote.key,
+                is_signer: self.verifier_quote.is_signer,
+                is_writable: self.verifier_quote.is_writable,
+            },
+            AccountMeta {
+                pubkey: *self.secured_signer.key,
                 is_signer: self.verifier_quote.is_signer,
                 is_writable: self.verifier_quote.is_writable,
             },
@@ -199,52 +206,61 @@ impl<'info> FunctionVerify<'info> {
         client: &anchor_client::Client<
             std::sync::Arc<anchor_client::solana_sdk::signer::keypair::Keypair>,
         >,
-        enclave_signer: std::sync::Arc<anchor_client::solana_sdk::signer::keypair::Keypair>,
+        fn_signer: std::sync::Arc<anchor_client::solana_sdk::signer::keypair::Keypair>,
         pubkeys: &FunctionVerifyPubkeys,
         mr_enclave: [u8; 32],
     ) -> std::result::Result<Instruction, switchboard_common::error::Error> {
+        let fn_signer_pubkey = crate::client::to_pubkey(fn_signer)?;
+
         let current_time = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()
             .as_secs() as i64;
 
         let fn_data: FunctionAccountData = load_account(&client, pubkeys.function).await?;
-        let enclave_signer_pubkey = crate::sgx::to_pubkey(enclave_signer)?;
-        let attestation_queue = fn_data.attestation_queue;
+
+        let verifier_quote: QuoteAccountData = load_account(&client, pubkeys.verifier).await?;
+
         let queue_data: AttestationQueueAccountData =
-            crate::load_account(&client, attestation_queue).await?;
-        let escrow = fn_data.escrow;
+            crate::client::load_account(&client, fn_data.attestation_queue).await?;
+
+        // let escrow = fn_data.escrow;
         let (fn_quote, _) = Pubkey::find_program_address(
             &[b"QuoteAccountData", &pubkeys.function.to_bytes()],
             &SWITCHBOARD_ATTESTATION_PROGRAM_ID,
         );
+
         let (verifier_permission, _) = Pubkey::find_program_address(
             &[
                 b"PermissionAccountData",
                 &queue_data.authority.to_bytes(),
-                &attestation_queue.to_bytes(),
+                &fn_data.attestation_queue.to_bytes(),
                 &pubkeys.payer.to_bytes(),
             ],
             &SWITCHBOARD_ATTESTATION_PROGRAM_ID,
         );
+
         let (fn_permission, _) = Pubkey::find_program_address(
             &[
                 b"PermissionAccountData",
                 &queue_data.authority.to_bytes(),
-                &attestation_queue.to_bytes(),
+                &fn_data.attestation_queue.to_bytes(),
                 &pubkeys.function.to_bytes(),
             ],
             &SWITCHBOARD_ATTESTATION_PROGRAM_ID,
         );
+
         let (state, _) =
             Pubkey::find_program_address(&[b"STATE"], &SWITCHBOARD_ATTESTATION_PROGRAM_ID);
+
         let accounts = FunctionVerifyAccounts {
             function: pubkeys.function,
-            fn_signer: enclave_signer_pubkey,
+            fn_signer: fn_signer_pubkey,
             fn_quote,
             verifier_quote: pubkeys.verifier,
-            attestation_queue,
-            escrow,
+            secured_signer: verifier_quote.authority,
+            attestation_queue: fn_data.attestation_queue,
+            escrow: fn_data.escrow,
             receiver: pubkeys.reward_receiver,
             verifier_permission,
             fn_permission,
@@ -296,6 +312,7 @@ pub struct FunctionVerifyAccounts {
     pub fn_signer: Pubkey,
     pub fn_quote: Pubkey,
     pub verifier_quote: Pubkey,
+    pub secured_signer: Pubkey,
     pub attestation_queue: Pubkey,
     pub escrow: Pubkey,
     pub receiver: Pubkey,
@@ -327,6 +344,11 @@ impl ToAccountMetas for FunctionVerifyAccounts {
             },
             AccountMeta {
                 pubkey: self.verifier_quote,
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: self.secured_signer,
                 is_signer: true,
                 is_writable: false,
             },

@@ -19,12 +19,10 @@ pub enum VerificationStatus {
 #[repr(packed)]
 #[derive(Debug)]
 pub struct QuoteAccountData {
-    // If this key is not Pubkey::default, then this is the secured
-    // signing key rather than the account key itself
-    // Set for functions only
-    pub delegated_secured_signer: Pubkey,
+    pub secured_signer: Pubkey,
     pub bump: u8,
     // Set except for function quotes
+    /// TODO: Add description
     pub quote_registry: [u8; 32],
     /// Key to lookup the buffer data on IPFS or an alternative decentralized storage solution.
     pub registry_key: [u8; 64],
@@ -41,7 +39,7 @@ pub struct QuoteAccountData {
     pub is_on_queue: bool,
     /// The last time the quote heartbeated.
     pub last_heartbeat: i64,
-    pub owner: Pubkey,
+    pub authority: Pubkey,
     //
     pub created_at: i64,
     pub _ebuf: [u8; 992],
@@ -156,6 +154,6 @@ impl QuoteAccountData {
         >,
         pubkey: Pubkey,
     ) -> std::result::Result<Self, switchboard_common::Error> {
-        crate::sgx::load_account(client, pubkey).await
+        crate::client::load_account(client, pubkey).await
     }
 }

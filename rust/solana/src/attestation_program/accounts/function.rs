@@ -36,7 +36,8 @@ pub struct FunctionAccountData {
     pub status: FunctionStatus,
     pub created_at: i64,
     pub is_triggered: bool,
-    pub _ebuf: [u8; 1023],
+    pub address_lookup_table: Pubkey,
+    pub _ebuf: [u8; 991],
 }
 
 unsafe impl Pod for FunctionAccountData {}
@@ -139,11 +140,27 @@ impl FunctionAccountData {
         }
 
         // validate the quotes delegated signer matches
-        if quote.delegated_secured_signer != signer.key() {
+        if quote.secured_signer != signer.key() {
             return Ok(false);
         }
 
         Ok(true)
+    }
+
+    pub fn get_container(&self) -> String {
+        std::str::from_utf8(&self.container)
+            .unwrap_or("")
+            .to_string()
+    }
+
+    pub fn get_version(&self) -> String {
+        std::str::from_utf8(&self.version)
+            .unwrap_or("latest")
+            .to_string()
+    }
+
+    pub fn get_name(&self) -> String {
+        format!("{}:{}", self.get_container(), self.get_version())
     }
 
     #[cfg(feature = "client")]
@@ -156,7 +173,7 @@ impl FunctionAccountData {
             .unwrap_or("* * * * * *")
             .trim_end_matches('\0');
         let schedule = cron::Schedule::try_from(schedule);
-        Some(schedule.unwrap_or(every_second))
+        Some(schedule.unwrap_or(every_second.clone()))
     }
 
     #[cfg(feature = "client")]
@@ -165,6 +182,24 @@ impl FunctionAccountData {
             chrono::NaiveDateTime::from_timestamp_opt(self.last_execution_timestamp, 0).unwrap(),
             chrono::Utc,
         )
+    }
+
+    #[cfg(feature = "client")]
+    pub fn should_execute(&self, now: chrono::DateTime<chrono::Utc>) -> bool {
+        let schedule = self.get_schedule();
+        if schedule.is_none() {
+            return false;
+        }
+        let dt = self.get_last_execution_datetime();
+        let next_trigger_time = schedule.unwrap().after(&dt).next();
+        if next_trigger_time.is_none() {
+            return false;
+        }
+        let next_trigger_time = next_trigger_time.unwrap();
+        if next_trigger_time > now {
+            return false;
+        }
+        true
     }
 
     #[cfg(feature = "client")]
@@ -184,6 +219,6 @@ impl FunctionAccountData {
         >,
         pubkey: Pubkey,
     ) -> std::result::Result<Self, switchboard_common::Error> {
-        crate::sgx::load_account(client, pubkey).await
+        crate::client::load_account(client, pubkey).await
     }
 }

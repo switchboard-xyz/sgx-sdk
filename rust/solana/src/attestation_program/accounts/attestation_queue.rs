@@ -121,6 +121,6 @@ impl AttestationQueueAccountData {
         >,
         pubkey: Pubkey,
     ) -> std::result::Result<Self, switchboard_common::Error> {
-        crate::sgx::load_account(client, pubkey).await
+        crate::client::load_account(client, pubkey).await
     }
 }

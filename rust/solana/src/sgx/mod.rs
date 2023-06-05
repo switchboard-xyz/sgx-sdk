@@ -26,29 +26,25 @@ pub fn generate_signer() -> Arc<Keypair> {
 }
 
 pub async fn function_verify(
-    enclave_signer: Arc<Keypair>,
+    fn_signer: Arc<Keypair>,
     mut ixs: Vec<Instruction>,
 ) -> Result<FunctionResult, Error> {
+    let fn_signer_pubkey = crate::client::to_pubkey(fn_signer.clone())?;
+
     let client = anchor_client::Client::new_with_options(
         Cluster::Devnet,
-        enclave_signer.to_owned(),
+        fn_signer.to_owned(),
         CommitmentConfig::processed(),
     );
-    let enclave_signer_pubkey = to_pubkey(enclave_signer.clone())?;
-    let quote_raw = Gramine::generate_quote(&enclave_signer_pubkey.to_bytes()).unwrap();
-    let quote = Quote::parse(&quote_raw).unwrap();
 
-    let blockhash = client
-        .program(SWITCHBOARD_ATTESTATION_PROGRAM_ID)
-        .rpc()
-        .get_latest_blockhash()
-        .unwrap();
+    let quote_raw = Gramine::generate_quote(&fn_signer_pubkey.to_bytes()).unwrap();
+    let quote = Quote::parse(&quote_raw).unwrap();
 
     let pubkeys = FunctionVerifyPubkeys::load_from_env()?;
 
     let ix = FunctionVerify::build(
         &client,
-        enclave_signer.clone(),
+        fn_signer.clone(),
         &pubkeys,
         quote.isv_report.mrenclave.try_into().unwrap(),
     )
@@ -58,32 +54,24 @@ pub async fn function_verify(
 
     let message = Message::new(&ixs, Some(&pubkeys.payer));
 
+    let blockhash = client
+        .program(SWITCHBOARD_ATTESTATION_PROGRAM_ID)
+        .rpc()
+        .get_latest_blockhash()
+        .unwrap();
+
     let mut tx = Transaction::new_unsigned(message);
-    tx.partial_sign(&[enclave_signer.as_ref()], blockhash);
+    tx.partial_sign(&[fn_signer.as_ref()], blockhash);
 
     Ok(FunctionResult {
         version: 1,
         chain: switchboard_common::Chain::Solana,
         key: pubkeys.function.to_bytes(),
-        signer: enclave_signer_pubkey.to_bytes(),
+        signer: fn_signer_pubkey.to_bytes(),
         serialized_tx: bincode::serialize(&tx).unwrap(),
         quote: quote_raw,
         ..Default::default()
     })
-}
-
-pub async fn load_account<T: bytemuck::Pod>(
-    client: &anchor_client::Client<Arc<Keypair>>,
-    pubkey: Pubkey,
-) -> Result<T, switchboard_common::Error> {
-    let data = client
-        .program(SWITCHBOARD_ATTESTATION_PROGRAM_ID)
-        .async_rpc()
-        .get_account_data(&pubkey)
-        .await
-        .map_err(|_| switchboard_common::Error::CustomMessage("AnchorParseError".to_string()))?;
-    Ok(*bytemuck::try_from_bytes::<T>(&data[8..])
-        .map_err(|_| switchboard_common::Error::CustomMessage("AnchorParseError".to_string()))?)
 }
 
 pub struct FunctionVerifyPubkeys {
@@ -92,6 +80,7 @@ pub struct FunctionVerifyPubkeys {
     pub verifier: Pubkey,
     pub reward_receiver: Pubkey,
 }
+
 impl FunctionVerifyPubkeys {
     pub fn load_from_env() -> std::result::Result<Self, switchboard_common::Error> {
         let function = Pubkey::from_str(&env::var("FUNCTION_KEY").unwrap()).unwrap();
@@ -115,11 +104,4 @@ impl FunctionVerifyPubkeys {
             reward_receiver: Pubkey::from_str(&env::var("REWARD_RECEIVER").unwrap()).unwrap(),
         })
     }
-}
-
-pub fn to_pubkey(signer: Arc<Keypair>) -> std::result::Result<Pubkey, switchboard_common::Error> {
-    let pubkey = Pubkey::from_str(signer.to_base58_string().as_str()).map_err(|_| {
-        switchboard_common::Error::CustomMessage("failed to parse pubkey string".to_string())
-    })?;
-    Ok(pubkey)
 }

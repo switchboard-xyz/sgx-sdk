@@ -10,6 +10,11 @@ pub mod attestation_program;
 pub use attestation_program::*;
 
 #[cfg(feature = "client")]
+pub mod client;
+#[cfg(feature = "client")]
+pub use client::*;
+
+#[cfg(feature = "client")]
 pub mod sgx;
 #[cfg(feature = "client")]
 pub use sgx::*;
