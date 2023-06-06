@@ -1,0 +1,11 @@
+[workspace]
+members = ["programs/lava-lamp", "programs/flux"]
+
+# https://twitter.com/zhouzhuojie/status/1619078510697676800
+[profile.release]
+overflow-checks = true
+strip = true
+opt-level = "z"
+lto = true
+panic = 'abort'
+codegen-units = 1

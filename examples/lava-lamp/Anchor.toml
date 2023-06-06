@@ -1,0 +1,44 @@
+[features]
+seeds = true
+skip-lint = false
+
+[programs.localnet]
+lava_lamp = "5dx7h7Sm7JWki5SWqHMVUMKykheNWLL8JKx3rq4ubYA9"
+flux = "GRdeumtcV5A5fSUBmgCDXxFcgrqAYUkTsXXRquXFwWoM"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "Localnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "pnpm exec ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.test.ts"
+
+[test.validator]
+url = "https://api.devnet.solana.com"
+
+[test]
+startup_wait = 15000
+
+[[test.validator.clone]] # sbv2 oracle programID
+address = "SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f"
+
+[[test.validator.clone]] # sbv2 oracle IDL
+address = "Fi8vncGpNKbq62gPo56G4toCehWNy77GgqGkTaAF5Lkk"
+
+[[test.validator.clone]] # sbv2 oracle SbState
+address = "CyZuD7RPDcrqCGbNvLCyqk6Py9cEZTKmNKujfPi3ynDd"
+
+[[test.validator.clone]] # sbv2 oracle tokenVault
+address = "7hkp1xfPBcD2t1vZMoWWQPzipHVcXeLAAaiGXdPSfDie"
+
+[[test.validator.clone]] # sbv3 attestationProgram
+address = "2No5FVKPAAYqytpkEoq93tVh33fo4p6DgAnm4S6oZHo7"
+
+[[test.validator.clone]] # sbv3 attestationProgram IDL
+address = "th1SbXMTX3SrWJ1kbiSKqMDpTBaXkESxpcehXRa12T4"
+
+[[test.validator.clone]] # sbv3 attestationProgram State
+address = "avQEFc4BnbPL91C93C5m9udwZWXzykikQ4aCykcugBt"

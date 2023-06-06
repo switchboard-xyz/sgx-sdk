@@ -8,7 +8,7 @@ export DEBIAN_FRONTEND=noninteractive
 
 if [ ! -x "$(command -v solana)" ]; then
     sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
-    echo 'PATH="/home/azureuser/.local/share/solana/install/active_release/bin:$PATH' >> ~/.bashrc
+    echo 'PATH="/home/azureuser/.local/share/solana/install/active_release/bin:$PATH"' >> ~/.bashrc
     export PATH="/home/azureuser/.local/share/solana/install/active_release/bin:$PATH"
 fi
 solana --version

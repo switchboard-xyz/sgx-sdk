@@ -1,0 +1,20 @@
+[package]
+name = "flux"
+version = "0.1.0"
+description = "Created with Anchor"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "flux"
+
+[features]
+no-entrypoint = []
+cpi = ["no-entrypoint"]
+
+[dependencies]
+anchor-lang = { version = "0.26.0", features = [] }
+anchor-spl = { version = "0.26.0", features = [] }
+bytemuck = "1.13.1"
+switchboard-solana = { path = "../../../../rust/solana" }
+lava-lamp = { path = "../lava-lamp", features = ["cpi"] }
