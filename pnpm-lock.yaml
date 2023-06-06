@@ -36,8 +36,8 @@ importers:
         specifier: workspace:*
         version: link:javascript/tsconfig
       turbo:
-        specifier: ^1.10.0
-        version: 1.10.0
+        specifier: ^1.10.1
+        version: 1.10.1
       typescript:
         specifier: ^5.0.4
         version: 5.0.4
@@ -79,7 +79,121 @@ importers:
         specifier: ^4.3.5
         version: 4.9.4
 
-  examples/solana-event-watcher: {}
+  examples/binance-oracle:
+    dependencies:
+      '@coral-xyz/anchor':
+        specifier: ^0.27.0
+        version: 0.27.0
+      '@switchboard-xyz/common':
+        specifier: ^2.2.3
+        version: 2.2.3
+      '@switchboard-xyz/solana.js':
+        specifier: 2.3.0-beta.5
+        version: 2.3.0-beta.5
+    devDependencies:
+      '@types/bn.js':
+        specifier: ^5.1.0
+        version: 5.1.1
+      '@types/chai':
+        specifier: ^4.3.0
+        version: 4.3.4
+      '@types/mocha':
+        specifier: ^9.0.0
+        version: 9.0.0
+      chai:
+        specifier: ^4.3.4
+        version: 4.3.7
+      mocha:
+        specifier: ^9.0.3
+        version: 9.0.3
+      prettier:
+        specifier: ^2.6.2
+        version: 2.8.7
+      shx:
+        specifier: ^0.3.4
+        version: 0.3.4
+      switchboard-common:
+        specifier: workspace:*
+        version: link:../../rust/common
+      switchboard-solana:
+        specifier: workspace:*
+        version: link:../../rust/solana
+      ts-mocha:
+        specifier: ^10.0.0
+        version: 10.0.0(mocha@9.0.3)
+      typescript:
+        specifier: ^4.3.5
+        version: 4.9.4
+
+  examples/binance-oracle/sgx-function:
+    dependencies:
+      lava-lamp:
+        specifier: workspace:*
+        version: link:../../lava-lamp
+      switchboard-common:
+        specifier: workspace:*
+        version: link:../../../rust/common
+      switchboard-solana:
+        specifier: workspace:*
+        version: link:../../../rust/solana
+
+  examples/lava-lamp:
+    dependencies:
+      '@coral-xyz/anchor':
+        specifier: ^0.27.0
+        version: 0.27.0
+      '@switchboard-xyz/common':
+        specifier: ^2.2.3
+        version: 2.2.3
+      '@switchboard-xyz/solana.js':
+        specifier: 2.3.0-beta.5
+        version: 2.3.0-beta.5
+    devDependencies:
+      '@types/bn.js':
+        specifier: ^5.1.0
+        version: 5.1.1
+      '@types/chai':
+        specifier: ^4.3.0
+        version: 4.3.4
+      '@types/mocha':
+        specifier: ^9.0.0
+        version: 9.0.0
+      chai:
+        specifier: ^4.3.4
+        version: 4.3.7
+      mocha:
+        specifier: ^9.0.3
+        version: 9.0.3
+      prettier:
+        specifier: ^2.6.2
+        version: 2.8.7
+      shx:
+        specifier: ^0.3.4
+        version: 0.3.4
+      switchboard-common:
+        specifier: workspace:*
+        version: link:../../rust/common
+      switchboard-solana:
+        specifier: workspace:*
+        version: link:../../rust/solana
+      ts-mocha:
+        specifier: ^10.0.0
+        version: 10.0.0(mocha@9.0.3)
+      typescript:
+        specifier: ^4.3.5
+        version: 4.9.4
+
+  examples/lava-lamp/sgx-function:
+    dependencies:
+      lava-lamp:
+        specifier: workspace:*
+        version: link:..
+      switchboard-common:
+        specifier: workspace:*
+        version: link:../../../rust/common
+      switchboard-solana:
+        specifier: workspace:*
+        version: link:../../../rust/solana
 
   javascript/eslint-config:
     dependencies:
@@ -426,13 +540,13 @@ packages:
       '@types/node': 18.15.11
       chalk: 4.1.2
       cosmiconfig: 8.1.3
-      cosmiconfig-typescript-loader: 4.3.0(@types/node@18.15.11)(cosmiconfig@8.1.3)(ts-node@10.9.1)(typescript@4.9.4)
+      cosmiconfig-typescript-loader: 4.3.0(@types/node@18.15.11)(cosmiconfig@8.1.3)(ts-node@10.9.1)(typescript@5.0.4)
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       lodash.uniq: 4.5.0
       resolve-from: 5.0.0
-      ts-node: 10.9.1(@types/node@18.15.11)(typescript@4.9.4)
-      typescript: 4.9.4
+      ts-node: 10.9.1(@types/node@18.15.11)(typescript@5.0.4)
+      typescript: 5.0.4
     transitivePeerDependencies:
       - '@swc/core'
       - '@swc/wasm'
@@ -708,11 +822,43 @@ packages:
     resolution: {integrity: sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==}
     dev: false
 
+  /@solana/buffer-layout-utils@0.2.0:
+    resolution: {integrity: sha512-szG4sxgJGktbuZYDg2FfNmkMi0DYQoVjN2h7ta1W1hPrwzarcFLBq9UpX1UjNXsNpT9dn+chgprtWGioUAr4/g==}
+    engines: {node: '>= 10'}
+    dependencies:
+      '@solana/buffer-layout': 4.0.1
+      '@solana/web3.js': 1.73.0
+      bigint-buffer: 1.1.5
+      bignumber.js: 9.1.1
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
+    dev: false
+
   /@solana/buffer-layout@4.0.1:
     resolution: {integrity: sha512-E1ImOIAD1tBZFRdjeM4/pzTiTApC0AOBGwyAMS4fwIodCWArzJ3DWdoh8cKxeFM2fElkxBh2Aqts1BPC373rHA==}
     engines: {node: '>=5.10'}
     dependencies:
       buffer: 6.0.3
+    dev: false
+
+  /@solana/spl-token@0.3.7(@solana/web3.js@1.73.0):
+    resolution: {integrity: sha512-bKGxWTtIw6VDdCBngjtsGlKGLSmiu/8ghSt/IOYJV24BsymRbgq7r12GToeetpxmPaZYLddKwAz7+EwprLfkfg==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      '@solana/web3.js': ^1.47.4
+    dependencies:
+      '@solana/buffer-layout': 4.0.1
+      '@solana/buffer-layout-utils': 0.2.0
+      '@solana/web3.js': 1.73.0
+      buffer: 6.0.3
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
     dev: false
 
   /@solana/web3.js@1.73.0:
@@ -753,6 +899,45 @@ packages:
       decimal.js: 10.4.3
       protobufjs: 7.2.3
       yaml: 2.2.1
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
+    dev: false
+
+  /@switchboard-xyz/common@2.2.3:
+    resolution: {integrity: sha512-E4NQf9aXdOiul+sySAbFPAW9k0qz4wRTfqrU7cEa8nRIvUkg6VIZ+5JfajHv/VfK9UOD+6ZfMBxq2+dHkiz9zw==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@solana/web3.js': 1.73.0
+      '@types/big.js': 6.1.6
+      '@types/bn.js': 5.1.1
+      big.js: 6.2.1
+      bn.js: 5.2.1
+      bs58: 5.0.0
+      decimal.js: 10.4.3
+      protobufjs: 7.2.3
+      yaml: 2.2.1
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - utf-8-validate
+    dev: false
+
+  /@switchboard-xyz/solana.js@2.3.0-beta.5:
+    resolution: {integrity: sha512-fh/AShg8UfK6C6FdqayNBGHxOJZv4aOJJHahrVadQsPv5MPWCgjpEDJG9Fn/v0cw6jpD7xi2ET+X5IdpgP94iQ==}
+    engines: {node: '>=16.0.0', npm: '>=7.0.0'}
+    dependencies:
+      '@coral-xyz/anchor': 0.27.0
+      '@coral-xyz/borsh': 0.27.0(@solana/web3.js@1.73.0)
+      '@solana/spl-token': 0.3.7(@solana/web3.js@1.73.0)
+      '@solana/web3.js': 1.73.0
+      '@switchboard-xyz/common': 2.2.3
+      cron-validator: 1.3.1
+      dotenv: 16.1.3
+      lodash: 4.17.21
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -1135,6 +1320,10 @@ packages:
       safe-buffer: 5.2.1
     dev: false
 
+  /base-x@4.0.0:
+    resolution: {integrity: sha512-FuwxlW4H5kh37X/oW59pwTzzTKRzfrrQwhmyspRM7swOEZcHtDZSCt45U6oKgtuFE+WYPblePMVIPR4RZrh/hw==}
+    dev: false
+
   /base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
     dev: false
@@ -1156,6 +1345,10 @@ packages:
     requiresBuild: true
     dependencies:
       bindings: 1.5.0
+    dev: false
+
+  /bignumber.js@9.1.1:
+    resolution: {integrity: sha512-pHm4LsMJ6lzgNGVfZHjMoO8sdoRhOzOH4MLmY65Jg70bpxCKu5iOHNJyfF6OyvYw7t8Fpf35RuzUyqnQsj8Vig==}
     dev: false
 
   /binary-extensions@2.2.0:
@@ -1213,6 +1406,12 @@ packages:
     resolution: {integrity: sha512-Ok3Wdf5vOIlBrgCvTq96gBkJw+JUEzdBgyaza5HLtPm7yTHkjRy8+JzNyHF7BHa0bNWOQIp3m5YF0nnFcOIKLw==}
     dependencies:
       base-x: 3.0.9
+    dev: false
+
+  /bs58@5.0.0:
+    resolution: {integrity: sha512-r+ihvQJvahgYT50JD05dyJNKlmmSlMoOGwn1lCcEzanPglg7TxYjioQUYehQ9mAR/+hOSd2jRc/Z2y5UxBymvQ==}
+    dependencies:
+      base-x: 4.0.0
     dev: false
 
   /buffer-from@1.1.2:
@@ -1436,7 +1635,7 @@ packages:
       through2: 4.0.2
     dev: true
 
-  /cosmiconfig-typescript-loader@4.3.0(@types/node@18.15.11)(cosmiconfig@8.1.3)(ts-node@10.9.1)(typescript@4.9.4):
+  /cosmiconfig-typescript-loader@4.3.0(@types/node@18.15.11)(cosmiconfig@8.1.3)(ts-node@10.9.1)(typescript@5.0.4):
     resolution: {integrity: sha512-NTxV1MFfZDLPiBMjxbHRwSh5LaLcPMwNdCutmnHJCKoVnlvldPWlllonKwrsRJ5pYZBIBGRWWU2tfvzxgeSW5Q==}
     engines: {node: '>=12', npm: '>=6'}
     peerDependencies:
@@ -1447,8 +1646,8 @@ packages:
     dependencies:
       '@types/node': 18.15.11
       cosmiconfig: 8.1.3
-      ts-node: 10.9.1(@types/node@18.15.11)(typescript@4.9.4)
-      typescript: 4.9.4
+      ts-node: 10.9.1(@types/node@18.15.11)(typescript@5.0.4)
+      typescript: 5.0.4
     dev: true
 
   /cosmiconfig@8.1.3:
@@ -1464,6 +1663,10 @@ packages:
   /create-require@1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
     dev: true
+
+  /cron-validator@1.3.1:
+    resolution: {integrity: sha512-C1HsxuPCY/5opR55G5/WNzyEGDWFVG+6GLrA+fW/sCTcP6A6NTjUP2AK7B8n2PyFs90kDG2qzwm8LMheADku6A==}
+    dev: false
 
   /cross-fetch@3.1.5:
     resolution: {integrity: sha512-lvb1SBsI0Z7GDwmuid+mU3kWVBwTVUbe7S0H52yaaAdQOXq2YktTCZdlAcNKFzE6QtRz0snpw9bNiPeOIkkQvw==}
@@ -1674,6 +1877,11 @@ packages:
     dependencies:
       is-obj: 2.0.0
     dev: true
+
+  /dotenv@16.1.3:
+    resolution: {integrity: sha512-FYssxsmCTtKL72fGBSvb1K9dRz0/VZeWqFme/vSb7r7323x4CRaHu4LvQ5JG3+s6yt2YPbBrkpiEODktfyjI9A==}
+    engines: {node: '>=12'}
+    dev: false
 
   /emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -3868,37 +4076,6 @@ packages:
       tsconfig-paths: 3.14.2
     dev: true
 
-  /ts-node@10.9.1(@types/node@18.15.11)(typescript@4.9.4):
-    resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
-    hasBin: true
-    peerDependencies:
-      '@swc/core': '>=1.2.50'
-      '@swc/wasm': '>=1.2.50'
-      '@types/node': '*'
-      typescript: '>=2.7'
-    peerDependenciesMeta:
-      '@swc/core':
-        optional: true
-      '@swc/wasm':
-        optional: true
-    dependencies:
-      '@cspotcode/source-map-support': 0.8.1
-      '@tsconfig/node10': 1.0.9
-      '@tsconfig/node12': 1.0.11
-      '@tsconfig/node14': 1.0.3
-      '@tsconfig/node16': 1.0.3
-      '@types/node': 18.15.11
-      acorn: 8.8.2
-      acorn-walk: 8.2.0
-      arg: 4.1.3
-      create-require: 1.1.1
-      diff: 4.0.2
-      make-error: 1.3.6
-      typescript: 4.9.4
-      v8-compile-cache-lib: 3.0.1
-      yn: 3.1.1
-    dev: true
-
   /ts-node@10.9.1(@types/node@18.15.11)(typescript@5.0.4):
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
     hasBin: true
@@ -3985,65 +4162,65 @@ packages:
       yargs: 17.7.1
     dev: true
 
-  /turbo-darwin-64@1.10.0:
-    resolution: {integrity: sha512-N0aVGFtBgOKd7pIdUiKREwnDhNHRIvpMJbmUw04c1AqEoTiKAKT6iuzcCozO5N/gYMVr0hxrXgLal5OLYXtcsw==}
+  /turbo-darwin-64@1.10.1:
+    resolution: {integrity: sha512-isLLoPuAOMNsYovOq9BhuQOZWQuU13zYsW988KkkaA4OJqOn7qwa9V/KBYCJL8uVQqtG+/Y42J37lO8RJjyXuA==}
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-darwin-arm64@1.10.0:
-    resolution: {integrity: sha512-boXzhaHTS5MsTMv48I/JmYp9/fYplXk5nACUDrqV6nD1hzO5PMn5wNg75ATbpkaMaeuD+hjuobeSxn1p4vpqQg==}
+  /turbo-darwin-arm64@1.10.1:
+    resolution: {integrity: sha512-x1nloPR10fLElNCv17BKr0kCx/O5gse/UXAcVscMZH2tvRUtXrdBmut62uw2YU3J9hli2fszYjUWXkulVpQvFA==}
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-linux-64@1.10.0:
-    resolution: {integrity: sha512-crKQuS1jrp4vp+Th6EmUqqmAlvYNnzGmwWMLeckmYILrV7zAddu87eJu4hB7V6uV+W1qHZUTw8WXa1w1+8boBw==}
+  /turbo-linux-64@1.10.1:
+    resolution: {integrity: sha512-abV+ODCeOlz0503OZlHhPWdy3VwJZc1jObf1VQj7uQM+JqJ/kXbMyqJIMQVz+m7QJUFdferYPRxGhYT/NbYK7Q==}
     cpu: [x64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-linux-arm64@1.10.0:
-    resolution: {integrity: sha512-Y2fhWe0xepLjl7doIvsJK7mp2h8E+OF6qJsUHRgxFeRWQWi1I6clD2aEQeykHK8Tp+qp8pKFMocj32nFBvuCcg==}
+  /turbo-linux-arm64@1.10.1:
+    resolution: {integrity: sha512-zRC3nZbHQ63tofOmbuySzEn1ROISWTkemYYr1L98rpmT5aVa0kERlGiYcfDwZh3cBso/Ylg/wxexRAaPzcCJYQ==}
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-windows-64@1.10.0:
-    resolution: {integrity: sha512-uh8rEqH6teaHysEMjinwWBqyNwv4IvgSAwbq/OphP8jObstTYHoR+gFPo8RQUSTaBYy4QVszgi5eO5YLvEQqNA==}
+  /turbo-windows-64@1.10.1:
+    resolution: {integrity: sha512-Irqz8IU+o7Q/5V44qatZBTunk+FQAOII1hZTsEU54ah62f9Y297K6/LSp+yncmVQOZlFVccXb6MDqcETExIQtA==}
     cpu: [x64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo-windows-arm64@1.10.0:
-    resolution: {integrity: sha512-JaVj3iM7qyRD6xYGZLL/Gs4mQKfM1zL0f91AwHZLNkk1CrJ6i5kO4ZjhKkwXSpVOTNKW3sX0Q7dExXj85Vv7UQ==}
+  /turbo-windows-arm64@1.10.1:
+    resolution: {integrity: sha512-124IT15d2gyjC+NEn11pHOaVFvZDRHpxfF+LDUzV7YxfNIfV0mGkR3R/IyVXtQHOgqOdtQTbC4y411sm31+SEw==}
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
     dev: true
     optional: true
 
-  /turbo@1.10.0:
-    resolution: {integrity: sha512-GWxoL2zJduiNaEHz78o74l2jCQEeuUZ3MdpMPz0SpZOvt3nimpvQPNxiyfbqt3U9/V5G375PWKYSbXkVnIbQcA==}
+  /turbo@1.10.1:
+    resolution: {integrity: sha512-wq0YeSv6P/eEDXOL42jkMUr+T4z34dM8mdHu5u6C6OOAq8JuLJ72F/v4EVR1JmY8icyTkFz10ICLV0haUUYhbQ==}
     hasBin: true
     requiresBuild: true
     optionalDependencies:
-      turbo-darwin-64: 1.10.0
-      turbo-darwin-arm64: 1.10.0
-      turbo-linux-64: 1.10.0
-      turbo-linux-arm64: 1.10.0
-      turbo-windows-64: 1.10.0
-      turbo-windows-arm64: 1.10.0
+      turbo-darwin-64: 1.10.1
+      turbo-darwin-arm64: 1.10.1
+      turbo-linux-64: 1.10.1
+      turbo-linux-arm64: 1.10.1
+      turbo-windows-64: 1.10.1
+      turbo-windows-arm64: 1.10.1
     dev: true
 
   /type-check@0.4.0:

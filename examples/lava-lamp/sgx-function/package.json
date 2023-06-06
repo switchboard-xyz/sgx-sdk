@@ -1,0 +1,11 @@
+{
+  "name": "lava-lamp-function",
+  "scripts": {
+    "build": "cargo build -p lava-lamp-function"
+  },
+  "dependencies": {
+    "lava-lamp": "workspace:*",
+    "switchboard-common": "workspace:*",
+    "switchboard-solana": "workspace:*"
+  }
+}

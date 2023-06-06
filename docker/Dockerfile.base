@@ -1,4 +1,4 @@
-FROM gramineproject/gramine:v1.4 as builder
+FROM gramineproject/gramine:v1.4
 
 ENV PATH=$PATH:/root/.cargo/bin/
 ENV DEBIAN_FRONTEND="noninteractive"
@@ -8,7 +8,7 @@ ENV SGX_SDK_VERSION="2.19.100.3"
 ENV SGX_SDK_VERSION_SHORT="2.19"
 ENV UNAME="5.15.0-1035-azure"
 
-RUN mkdir -p /data/protected_files
+RUN mkdir -p /data/protected_files && mkdir /sgx
 
 # Add startup files, user can overwrite these
 COPY --chown=root:root ./configs/boot.sh /boot.sh
@@ -20,6 +20,9 @@ RUN chmod a+x /boot.sh && chmod a+x /get_measurement.sh
 RUN curl -fsSLo /usr/share/keyrings/microsoft.asc https://packages.microsoft.com/keys/microsoft.asc && \
     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.asc] https://packages.microsoft.com/ubuntu/20.04/prod focal main" | \
     tee /etc/apt/sources.list.d/msprod.list
+# Add Intel SGX registry
+RUN curl -fsSLo /usr/share/keyrings/intel-sgx-deb.asc https://download.01.org/intel-sgx/sgx_repo/ubuntu/intel-sgx-deb.key && \
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/intel-sgx-deb.asc] https://download.01.org/intel-sgx/sgx_repo/ubuntu focal main" | tee /etc/apt/sources.list.d/intel-sgx.list
 
 # install Azure DCAP library
 RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
@@ -27,19 +30,24 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
     rm -f /etc/apt/apt.conf.d/docker-clean && \
     apt-get update && \
     apt-get -y --no-install-recommends install \
+    wget \
     az-dcap-client \
     xxd \
     build-essential \
     gcc \
     clang \
-    wget
+    pkg-config \
+    libssl-dev \
+    libcurl4-openssl-dev \
+    openssl \
+    libssl-dev 
 
 # Install Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 RUN cargo install cargo-strip
 
 # Restart the AESM service
-RUN /restart_aesm.sh
+# RUN /restart_aesm.sh
 
 WORKDIR /app
 

@@ -1,0 +1,11 @@
+{
+  "name": "binance-oracle-function",
+  "scripts": {
+    "build": "cargo build -p binance-oracle-function"
+  },
+  "dependencies": {
+    "lava-lamp": "workspace:*",
+    "switchboard-common": "workspace:*",
+    "switchboard-solana": "workspace:*"
+  }
+}
