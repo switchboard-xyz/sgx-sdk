@@ -2,6 +2,7 @@
 FROM switchboardlabs/sgx-function:beta AS builder
 
 ARG SGX_FUNCTION_DIR=/
+ARG CARGO_NAME=sgx-function
 
 WORKDIR /home/root/sgx-function
 COPY . .
@@ -12,7 +13,7 @@ WORKDIR /home/root/sgx-function/${SGX_FUNCTION_DIR}
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=./target \
     cargo build --release && \
     cargo strip && \
-    mv target/release/${SGX_FUNCTION_DIR} /sgx/app
+    mv target/release/${CARGO_NAME} /sgx/app
 
 FROM switchboardlabs/sgx-function:beta
 
