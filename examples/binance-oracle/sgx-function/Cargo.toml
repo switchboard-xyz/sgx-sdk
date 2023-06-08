@@ -6,12 +6,14 @@ edition = "2021"
 [workspace]
 
 [dependencies]
-# switchboard-attestation-client = "0.1.7"
-# switchboard-attestation-client = { path = "../../../rust/attestation-client" }
-# switchboard-utils = "*"
-switchboard-utils = { path = "../../../rust/utils" }
-switchboard-common = { path = "../../../rust/common", features = ["sgx"] }
-switchboard-solana = { path = "../../../rust/solana", features = ["client"] }
+# switchboard-common = { path = "../../../rust/common", version = "0.0.1", features = [
+#     "sgx"
+# ] }
+# switchboard-solana = { path = "../../../rust/solana", version = "0.0.1", features = [
+#     "client"
+# ] }
+switchboard-common = { version = "0.0.1", features = ["sgx"] }
+switchboard-solana = { version = "0.0.1", features = ["client"] }
 tokio = "1.26.0"
 futures = "0.3.28"
 chrono = "0.4.24"

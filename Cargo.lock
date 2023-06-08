@@ -2450,7 +2450,7 @@ checksum = "81cdd64d312baedb58e21336b31bc043b77e01cc99033ce76ef539f78e965ebc"
 
 [[package]]
 name = "switchboard-common"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "getrandom 0.2.9",
  "hex",
@@ -2462,7 +2462,7 @@ dependencies = [
 
 [[package]]
 name = "switchboard-utils"
-version = "0.1.0"
+version = "0.0.1"
 dependencies = [
  "actix",
  "actix-rt",

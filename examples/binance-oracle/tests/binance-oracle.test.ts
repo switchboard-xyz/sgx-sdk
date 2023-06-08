@@ -20,12 +20,15 @@ type BootstrappedAttestationQueue = {
   };
 };
 
+const MRENCLAVE = parseMrEnclave(
+  Buffer.from("3H98v4rOe5oTewVgg/9u2OoNM9fvPcZxRj2vya0R1p4=", "base64")
+);
+
 describe("binance-oracle", () => {
   // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
 
   const program = anchor.workspace.BinanceOracle as Program<BinanceOracle>;
-  const MRENCLAVE = parseMrEnclave("Binance oracle sgx measurement");
   let switchboard: BootstrappedAttestationQueue;
   let functionAccount: FunctionAccount;
 
@@ -64,5 +67,9 @@ describe("binance-oracle", () => {
     console.log("Your transaction signature", tx);
   });
 
-  it("Pushes a BTC price", async () => {});
+  it("Pushes a BTC price", async () => {
+    const tx = await program.methods.pushData({
+      
+    }).accounts().rpc();
+  });
 });

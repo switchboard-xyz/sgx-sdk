@@ -16,6 +16,7 @@ pub mod binance_oracle {
         Initialize::actuate(&ctx)
     }
 
+    // #[access_control(ctx.accounts.validate(&ctx, &params))]
     pub fn push_data(ctx: Context<PushData>, params: PushDataParams) -> Result<()> {
         PushData::actuate(&ctx, &params)
     }
@@ -28,6 +29,7 @@ pub struct ProgramState {
     pub bump: u8,
     pub authority: Pubkey,
     pub attestation_queue: Pubkey,
+    pub mr_enclaves: [[u8; 32]; 32],
 }
 
 #[repr(packed)]
@@ -55,4 +57,6 @@ pub enum BinanceOracleError {
     StaleData,
     #[msg("Invalid trusted signer")]
     InvalidTrustedSigner,
+    #[msg("Invalid MRENCLAVE")]
+    InvalidMrEnclave,
 }

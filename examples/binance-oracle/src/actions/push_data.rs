@@ -23,7 +23,8 @@ pub struct PushData<'info> {
     pub function: AccountLoader<'info, FunctionAccountData>,
 
     #[account(
-        has_one = secured_signer @ BinanceOracleError::InvalidTrustedSigner
+        has_one = secured_signer @ BinanceOracleError::InvalidTrustedSigner,
+        constraint = state.load()?.mr_enclaves.contains(&quote.load()?.mr_enclave) @ BinanceOracleError::InvalidMrEnclave
     )]
     pub quote: AccountLoader<'info, QuoteAccountData>,
 
@@ -49,6 +50,10 @@ pub struct PushDataParams {
 }
 
 impl PushData<'_> {
+    pub fn validate(ctx: &Context<Self>, params: &PushDataParams) -> Result<()> {
+        Ok(())
+    }
+
     pub fn actuate(ctx: &Context<Self>, params: &PushDataParams) -> Result<()> {
         let oracle = &mut ctx.accounts.oracle.load_mut()?;
 
