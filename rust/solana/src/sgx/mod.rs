@@ -17,7 +17,7 @@ use switchboard_common::{Error, FunctionResult, Gramine};
 // use crate::{FunctionVerify, SWITCHBOARD_ATTESTATION_PROGRAM_ID};
 
 use crate::attestation_program::FunctionVerify;
-use crate::SWITCHBOARD_ATTESTATION_PROGRAM_ID;
+use crate::{QUOTE_SEED, SWITCHBOARD_ATTESTATION_PROGRAM_ID};
 
 pub fn generate_signer() -> Arc<Keypair> {
     let mut randomness = [0; 32];
@@ -76,6 +76,7 @@ pub async fn function_verify(
 
 pub struct FunctionVerifyPubkeys {
     pub function: Pubkey,
+    pub quote: Pubkey,
     pub payer: Pubkey,
     pub verifier: Pubkey,
     pub reward_receiver: Pubkey,
@@ -93,8 +94,14 @@ impl FunctionVerifyPubkeys {
             ));
         }
 
+        let (quote, _bump) = Pubkey::find_program_address(
+            &[QUOTE_SEED, function.as_ref()],
+            &SWITCHBOARD_ATTESTATION_PROGRAM_ID,
+        );
+
         Ok(Self {
             function,
+            quote,
             payer,
             verifier: Pubkey::from_str(verifier).map_err(|_| {
                 switchboard_common::Error::CustomMessage(

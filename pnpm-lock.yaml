@@ -1,7 +1,7 @@
 lockfileVersion: '6.1'
 
 settings:
-  autoInstallPeers: true
+  autoInstallPeers: false
   excludeLinksFromLockfile: false
 
 importers:
@@ -126,6 +126,64 @@ importers:
         version: 4.9.4
 
   examples/binance-oracle/sgx-function:
+    dependencies:
+      lava-lamp:
+        specifier: workspace:*
+        version: link:../../lava-lamp
+      switchboard-common:
+        specifier: workspace:*
+        version: link:../../../rust/common
+      switchboard-solana:
+        specifier: workspace:*
+        version: link:../../../rust/solana
+
+  examples/coinbase-vwap:
+    dependencies:
+      '@coral-xyz/anchor':
+        specifier: ^0.27.0
+        version: 0.27.0
+      '@switchboard-xyz/common':
+        specifier: ^2.2.3
+        version: 2.2.3
+      '@switchboard-xyz/solana.js':
+        specifier: 2.3.0-beta.5
+        version: 2.3.0-beta.5
+    devDependencies:
+      '@types/bn.js':
+        specifier: ^5.1.0
+        version: 5.1.1
+      '@types/chai':
+        specifier: ^4.3.0
+        version: 4.3.4
+      '@types/mocha':
+        specifier: ^9.0.0
+        version: 9.0.0
+      chai:
+        specifier: ^4.3.4
+        version: 4.3.7
+      mocha:
+        specifier: ^9.0.3
+        version: 9.0.3
+      prettier:
+        specifier: ^2.6.2
+        version: 2.8.7
+      shx:
+        specifier: ^0.3.4
+        version: 0.3.4
+      switchboard-common:
+        specifier: workspace:*
+        version: link:../../rust/common
+      switchboard-solana:
+        specifier: workspace:*
+        version: link:../../rust/solana
+      ts-mocha:
+        specifier: ^10.0.0
+        version: 10.0.0(mocha@9.0.3)
+      typescript:
+        specifier: ^4.3.5
+        version: 4.9.4
+
+  examples/coinbase-vwap/sgx-function:
     dependencies:
       lava-lamp:
         specifier: workspace:*

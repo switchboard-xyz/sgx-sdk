@@ -134,7 +134,7 @@ impl FunctionAccountData {
         let quote = QuoteAccountData::new(quote_account_info)?;
 
         // validate function PDA matches the expected derivation
-        let expected_quote_key = quote.get_pda_pubkey(&function_account_info.key())?;
+        let expected_quote_key = QuoteAccountData::get_pda_pubkey(&function_account_info.key())?;
         if quote_account_info.key() != expected_quote_key {
             return Ok(false);
         }

@@ -7,6 +7,7 @@ use serde::Deserialize;
 use solana_sdk::{instruction::Instruction, pubkey, pubkey::Pubkey};
 use std::str::FromStr;
 use std::time::{SystemTime, UNIX_EPOCH};
+use switchboard_solana::QuoteAccountData;
 use switchboard_solana::{function_verify, generate_signer, FunctionVerifyPubkeys};
 
 const FUNCTION_PUBKEY: Pubkey = pubkey!("5dx7h7Sm7JWki5SWqHMVUMKykheNWLL8JKx3rq4ubYA9");
@@ -70,12 +71,12 @@ async fn main() {
                 is_writable: false,
             },
             AccountMeta {
-                pubkey: FUNCTION_PUBKEY,
+                pubkey: fn_accounts.function,
                 is_signer: false,
                 is_writable: false,
             },
             AccountMeta {
-                pubkey: QUOTE_PUBKEY,
+                pubkey: fn_accounts.quote,
                 is_signer: false,
                 is_writable: false,
             },

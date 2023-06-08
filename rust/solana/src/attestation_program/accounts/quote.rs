@@ -121,12 +121,11 @@ impl QuoteAccountData {
         ))
     }
 
-    pub fn get_pda_pubkey(&self, function_pubkey: &Pubkey) -> anchor_lang::Result<Pubkey> {
-        let pda_key = Pubkey::create_program_address(
-            &[QUOTE_SEED, function_pubkey.as_ref(), &[self.bump]],
+    pub fn get_pda_pubkey(function_pubkey: &Pubkey) -> anchor_lang::Result<Pubkey> {
+        let (pda_key, _bump) = Pubkey::find_program_address(
+            &[QUOTE_SEED, function_pubkey.as_ref()],
             &SWITCHBOARD_ATTESTATION_PROGRAM_ID,
-        )
-        .map_err(|_| SwitchboardError::PdaDerivationError)?;
+        );
 
         Ok(pda_key)
     }
