@@ -4,7 +4,7 @@ use anchor_lang::prelude::*;
 use solana_sdk::{instruction::Instruction, pubkey, pubkey::Pubkey};
 use switchboard_solana::{function_verify, generate_signer};
 
-const PROGRAM_ID: Pubkey = pubkey!("5dx7h7Sm7JWki5SWqHMVUMKykheNWLL8JKx3rq4ubYA9");
+const PROGRAM_ID: Pubkey = pubkey!("DpLmXhwhbQP3NhUKpnWgbteUGpoWAETsJEzGntiKHrN1");
 
 // TODO: update
 const LAVA_LAMP_STATE_PUBKEY: Pubkey = pubkey!("5dx7h7Sm7JWki5SWqHMVUMKykheNWLL8JKx3rq4ubYA9");

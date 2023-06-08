@@ -30,7 +30,7 @@ client = [
 
 [dependencies]
 switchboard-common = { path = "../common", version = "0.1.0" }
-rust_decimal = "=1.26.1"
+rust_decimal = "1"
 bytemuck = "1.13.1"
 superslice = "1"
 anchor-lang = "0.26.0"

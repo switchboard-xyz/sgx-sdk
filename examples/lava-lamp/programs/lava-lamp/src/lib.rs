@@ -10,7 +10,7 @@ use switchboard_solana::QuoteAccountData;
 pub mod actions;
 pub use actions::*;
 
-declare_id!("5dx7h7Sm7JWki5SWqHMVUMKykheNWLL8JKx3rq4ubYA9");
+declare_id!("DpLmXhwhbQP3NhUKpnWgbteUGpoWAETsJEzGntiKHrN1");
 
 pub const STATE_SEED: &[u8] = b"LAVALAMPSTATE";
 

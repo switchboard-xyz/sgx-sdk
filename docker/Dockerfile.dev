@@ -1,14 +1,8 @@
 # syntax=docker/dockerfile:1.4
 FROM switchboardlabs/sgx-function:beta AS builder
 
-ARG EXAMPLE_NAME=basic-example
-ARG CARGO_NAME=app
-
-# Add Azure DCAP registry
-# RUN curl -fsSLo /usr/share/keyrings/microsoft.asc https://packages.microsoft.com/keys/microsoft.asc && \
-#     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.asc] https://packages.microsoft.com/ubuntu/20.04/prod focal main" | \
-#     tee /etc/apt/sources.list.d/msprod.list
-
+# RUN curl -fsSLo /usr/share/keyrings/intel-sgx-deb.asc https://download.01.org/intel-sgx/sgx_repo/ubuntu/intel-sgx-deb.key && \
+#     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/intel-sgx-deb.asc] https://download.01.org/intel-sgx/sgx_repo/ubuntu focal main" | tee /etc/apt/sources.list.d/intel-sgx.list
 
 # RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
 #     --mount=target=/var/cache/apt,type=cache,sharing=locked \
@@ -18,7 +12,17 @@ ARG CARGO_NAME=app
 #     libssl-dev \
 #     libcurl4-openssl-dev \
 #     openssl \
+#     pkg-config \
 #     libssl-dev
+
+ARG EXAMPLE_NAME=basic-example
+ARG CARGO_NAME=app
+
+
+# Add Azure DCAP registry
+# RUN curl -fsSLo /usr/share/keyrings/microsoft.asc https://packages.microsoft.com/keys/microsoft.asc && \
+#     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.asc] https://packages.microsoft.com/ubuntu/20.04/prod focal main" | \
+#     tee /etc/apt/sources.list.d/msprod.list
 
 # WORKDIR /home/root/ssl_key
 
@@ -35,15 +39,23 @@ COPY . .
 WORKDIR /home/root/sgx-sdk/examples/${EXAMPLE_NAME}/sgx-function
 
 # Build the release binary
-RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/home/root/sgx-oracle/target \
+# RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=./target \
+#     cargo build --release
+
+# RUN --mount=type=cache,target=/usr/local/cargo/registry cargo build --release
+
+# COPY ./target/release/${CARGO_NAME} /sgx/app
+
+RUN --mount=type=cache,target=/usr/local/cargo/registry,id=${TARGETPLATFORM} --mount=type=cache,target=/home/root/sgx-sdk/examples/${EXAMPLE_NAME}/sgx-function/target,id=${TARGETPLATFORM} \
     cargo build --release && \
-    mv target/release/${CARGO_NAME} /sgx/app
+    cargo strip && \
+    mv /home/root/sgx-sdk/examples/${EXAMPLE_NAME}/sgx-function/target/release/${CARGO_NAME} /sgx
 
 FROM switchboardlabs/sgx-function:beta
 
 # Copy the binary
 WORKDIR /sgx
-COPY --from=builder /sgx/app /sgx/app
+COPY --from=builder /sgx/${CARGO_NAME} /sgx/app
 
 # Get the measurement from the enclave
 RUN /get_measurement.sh

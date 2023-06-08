@@ -5,7 +5,7 @@ use anchor_lang::Discriminator;
 pub mod actions;
 pub use actions::*;
 
-declare_id!("GRdeumtcV5A5fSUBmgCDXxFcgrqAYUkTsXXRquXFwWoM");
+declare_id!("GxvdVxsf8vftqEzdQBHefq1s42PpoM8SeCtG2yay1oCm");
 
 pub const STATE_SEED: &[u8] = b"FLUXSTATE";
 

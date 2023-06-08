@@ -4,7 +4,7 @@ import {
   QuoteAccount,
   SwitchboardProgram,
   parseMrEnclave,
-  RawMrEnclave,
+  RawBuffer,
   FunctionAccount,
   TransactionObject,
 } from "@switchboard-xyz/solana.js";
@@ -20,7 +20,7 @@ export interface SwitchboardEnvironment {
 
 export async function initializeSwitchboardEnvironment(
   provider: anchor.AnchorProvider,
-  _mrEnclave: RawMrEnclave
+  _mrEnclave: RawBuffer
 ): Promise<SwitchboardEnvironment> {
   const mrEnclave = parseMrEnclave(_mrEnclave);
   const switchboard = await SwitchboardProgram.fromProvider(provider);

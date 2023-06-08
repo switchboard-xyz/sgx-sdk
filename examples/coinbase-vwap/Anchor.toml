@@ -1,10 +1,14 @@
+[workspace]
+members = [
+    "."
+]
+
 [features]
-seeds = true
+seeds = false
 skip-lint = false
 
 [programs.localnet]
-lava_lamp = "DpLmXhwhbQP3NhUKpnWgbteUGpoWAETsJEzGntiKHrN1"
-flux = "GxvdVxsf8vftqEzdQBHefq1s42PpoM8SeCtG2yay1oCm"
+coinbase_vwap = "3BJKeRy4WX4YQqsGWfmfEn2LhQ81VgaiMmFb2XiY8f2H"
 
 [registry]
 url = "https://api.apr.dev"

@@ -16,6 +16,6 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-anchor-lang = { version = "0.26.0", features = [] }
+anchor-lang = { version = "0.26.0", features = ["init-if-needed"] }
+rust_decimal = { version = "1.29.1" }
 switchboard-solana = { path = "../../../../rust/solana" }
-

@@ -1,0 +1,11 @@
+{
+  "name": "coinbase-vwap-function",
+  "scripts": {
+    "build": "cargo build -p coinbase-vwap-function"
+  },
+  "dependencies": {
+    "lava-lamp": "workspace:*",
+    "switchboard-common": "workspace:*",
+    "switchboard-solana": "workspace:*"
+  }
+}
