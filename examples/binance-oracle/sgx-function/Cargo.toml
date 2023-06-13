@@ -12,8 +12,8 @@ edition = "2021"
 # switchboard-solana = { path = "../../../rust/solana", version = "0.0.1", features = [
 #     "client"
 # ] }
-switchboard-common = { version = "0.0.1", features = ["sgx"] }
-switchboard-solana = { version = "0.0.1", features = ["client"] }
+switchboard-common = { version = "*", features = ["sgx"] }
+switchboard-solana = { version = "*", features = ["client"] }
 tokio = "1.26.0"
 futures = "0.3.28"
 chrono = "0.4.24"

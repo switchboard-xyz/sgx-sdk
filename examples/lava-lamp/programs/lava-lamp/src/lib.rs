@@ -38,7 +38,7 @@ pub mod lava_lamp {
 }
 
 #[repr(packed)]
-#[account(zero_copy)]
+#[account(zero_copy(unsafe))]
 pub struct LavaLampAccount {
     /// The PDA bump.
     pub bump: u8,
@@ -61,7 +61,7 @@ pub struct LavaLampAccount {
 }
 
 #[repr(packed)]
-#[account(zero_copy)]
+#[account(zero_copy(unsafe))]
 pub struct BufferAccount {
     /// The idx of the last element written to the buffer.
     pub write_idx: u32,

@@ -2,4 +2,3 @@ packages:
   - "javascript/*"
   - "examples/*"
   - "examples/*/sgx-function"
-  - "rust/*"

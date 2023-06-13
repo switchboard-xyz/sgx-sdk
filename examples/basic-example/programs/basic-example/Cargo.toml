@@ -15,4 +15,4 @@ cpi = ["no-entrypoint"]
 [dependencies]
 anchor-lang = { version = "0.27.0", features = [] }
 bytemuck = "1.13.1"
-switchboard-solana = { path = "../../../../rust/solana" }
+switchboard-solana = "*"

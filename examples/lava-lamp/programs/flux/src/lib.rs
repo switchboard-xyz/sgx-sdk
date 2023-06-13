@@ -28,7 +28,7 @@ pub mod flux {
 }
 
 #[repr(packed)]
-#[account(zero_copy)]
+#[account(zero_copy(unsafe))]
 pub struct FluxAccount {
     /// The PDA bump.
     pub bump: u8,

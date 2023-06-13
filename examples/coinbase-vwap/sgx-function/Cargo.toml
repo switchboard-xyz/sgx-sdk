@@ -9,9 +9,9 @@ edition = "2021"
 # switchboard-attestation-client = "0.1.7"
 # switchboard-attestation-client = { path = "../../../rust/attestation-client" }
 # switchboard-utils = "*"
-switchboard-utils = { path = "../../../rust/utils" }
-switchboard-common = { path = "../../../rust/common", features = ["sgx"] }
-switchboard-solana = { path = "../../../rust/solana", features = ["client"] }
+switchboard-utils = { version = "*" }
+switchboard-common = { version = "*" , features = ["sgx"] }
+switchboard-solana = { version = "*" , features = ["client"] }
 tokio = "1.26.0"
 futures = "0.3.28"
 chrono = "0.4.24"

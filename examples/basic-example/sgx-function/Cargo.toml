@@ -9,9 +9,9 @@ edition = "2021"
 # switchboard-attestation-client = "0.1.7"
 # switchboard-attestation-client = { path = "../../../rust/attestation-client" }
 # switchboard-utils = "*"
-switchboard-utils = { path = "../../../rust/utils" }
-switchboard-common = { path = "../../../rust/common", features = ["sgx"] }
-switchboard-solana = { path = "../../../rust/solana" }
+switchboard-utils = { version = "*" }
+switchboard-common = { version = "*", features = ["sgx"] }
+switchboard-solana = { version = "*" }
 weather-station = { path = "../programs/basic-example" }
 tokio = "1.26.0"
 clokwerk = "0.4.0"
