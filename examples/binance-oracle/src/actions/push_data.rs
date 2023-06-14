@@ -50,7 +50,7 @@ pub struct PushDataParams {
 }
 
 impl PushData<'_> {
-    pub fn validate(ctx: &Context<Self>, params: &PushDataParams) -> Result<()> {
+    pub fn validate(_ctx: &Context<Self>, _params: &PushDataParams) -> Result<()> {
         Ok(())
     }
 

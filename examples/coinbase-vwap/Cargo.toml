@@ -31,5 +31,5 @@ default = []
 
 [dependencies]
 anchor-lang = { version = "0.26.0", features = [] }
-switchboard-solana = { path = "../../rust/solana" }
+switchboard-solana = { version = "*" }
 

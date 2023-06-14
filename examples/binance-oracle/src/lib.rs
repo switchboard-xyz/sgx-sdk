@@ -22,8 +22,8 @@ pub mod binance_oracle {
     }
 }
 
-#[repr(packed)]
 #[account(zero_copy)]
+#[repr(packed)]
 #[derive(Default, Debug)]
 pub struct ProgramState {
     pub bump: u8,
@@ -32,8 +32,8 @@ pub struct ProgramState {
     pub mr_enclaves: [[u8; 32]; 32],
 }
 
-#[repr(packed)]
 #[account(zero_copy)]
+#[repr(packed)]
 #[derive(Default, Debug)]
 pub struct OracleState {
     pub bump: u8,

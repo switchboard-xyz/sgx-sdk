@@ -6,9 +6,9 @@
     "pid": "find target/deploy/binance_oracle-keypair.json || solana-keygen new -s --no-bip39-passphrase --outfile target/deploy/binance_oracle-keypair.json; echo \"$(solana-keygen pubkey target/deploy/binance_oracle-keypair.json)\"",
     "localnet": "shx mkdir -p .anchor/test-ledger || true; pnpm localnet:kill; solana-test-validator -q -r --ledger .anchor/test-ledger --mint $(solana-keygen pubkey ~/.config/solana/id.json) --bind-address 0.0.0.0 --url https://api.devnet.solana.com --rpc-port 8899  --clone SW1TCH7qEPTdLsDHRgPuMQjbQxKdH2aBStViMFnt64f `# programId` --clone 7nYabs9dUhvxYwdTnrWVBL9MYviKSfrEbdWCUbcnwkpF `# programDataAddress` --clone Fi8vncGpNKbq62gPo56G4toCehWNy77GgqGkTaAF5Lkk `# idlAddress` --clone CyZuD7RPDcrqCGbNvLCyqk6Py9cEZTKmNKujfPi3ynDd `# programState` --clone 7hkp1xfPBcD2t1vZMoWWQPzipHVcXeLAAaiGXdPSfDie `# switchboardVault`",
     "localnet:kill": "kill -9 $(pgrep command solana-test-validator) || exit 0",
-    "docker:build": "DOCKER_BUILDKIT=1 docker build -f ../../docker/Dockerfile.beta --platform linux/amd64 -t binance-oracle --build-arg SGX_FUNCTION_DIR=sgx-function  --build-arg CARGO_NAME=binance-oracle-function .",
+    "docker:build": "DOCKER_BUILDKIT=1 docker buildx build -f ../../docker/Dockerfile.beta --platform linux/amd64 -t binance-oracle --build-arg SGX_FUNCTION_DIR=sgx-function  --build-arg CARGO_NAME=binance-oracle-function .",
     "docker:dev": "DOCKER_BUILDKIT=1 docker buildx build -f ../../docker/Dockerfile.dev --platform linux/amd64 -t binance-oracle --build-arg CARGO_NAME=binance-oracle-function --build-arg EXAMPLE_NAME=binance-oracle ../../",
-    "measurement": "pnpm run docker:dev; id=$(docker run -it -d --rm binance-oracle bash); docker cp $id:/measurement.txt sgx-function/measurement.txt; docker kill $id; echo \"MR_ENCLAVE: $(cat sgx-function/measurement.txt)\"",
+    "measurement": "pnpm run docker:build; id=$(docker run -it -d --rm binance-oracle bash); docker cp $id:/measurement.txt sgx-function/measurement.txt; docker kill $id; echo \"MR_ENCLAVE: $(cat sgx-function/measurement.txt)\"",
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
   },
@@ -26,8 +26,6 @@
     "prettier": "^2.6.2",
     "shx": "^0.3.4",
     "ts-mocha": "^10.0.0",
-    "typescript": "^4.3.5",
-    "switchboard-common": "workspace:*",
-    "switchboard-solana": "workspace:*"
+    "typescript": "^4.3.5"
   }
 }

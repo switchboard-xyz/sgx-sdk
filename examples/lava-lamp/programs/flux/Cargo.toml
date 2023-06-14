@@ -13,8 +13,8 @@ no-entrypoint = []
 cpi = ["no-entrypoint"]
 
 [dependencies]
-anchor-lang = { version = "0.26.0", features = [] }
-anchor-spl = { version = "0.26.0", features = [] }
+anchor-lang = { version = "=0.28.0", features = [] }
+anchor-spl = { version = "=0.28.0", features = [] }
 bytemuck = "1.13.1"
-switchboard-solana = { path = "../../../../rust/solana" }
+switchboard-solana = "0.3.1"
 lava-lamp = { path = "../lava-lamp", features = ["cpi"] }

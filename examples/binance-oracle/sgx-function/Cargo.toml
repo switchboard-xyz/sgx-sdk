@@ -6,26 +6,14 @@ edition = "2021"
 [workspace]
 
 [dependencies]
-# switchboard-common = { path = "../../../rust/common", version = "0.0.1", features = [
-#     "sgx"
-# ] }
-# switchboard-solana = { path = "../../../rust/solana", version = "0.0.1", features = [
-#     "client"
-# ] }
-switchboard-common = { version = "0.0.1", features = ["sgx"] }
-switchboard-solana = { version = "0.0.1", features = ["client"] }
+# switchboard-solana = "0.3.10"
+switchboard-solana = { path = "../../../../../switchboard/sbv2-solana/rust/switchboard-solana" }
 tokio = "1.26.0"
 futures = "0.3.28"
 chrono = "0.4.24"
-# simple_logger = "4"
-# log = "0.4.17"
-anchor-client = "0.27.0"
-anchor-lang = "0.27.0"
-solana-sdk = "1.14.18"
 reqwest = { version = "0.11.18", features = [
     "rustls-tls"
 ], default-features = false }
 serde = "1.0.160"
 serde_json = "1.0.96"
 binance-oracle = { path = "../", features = ["no-entrypoint"] }
-rust_decimal = "1.29.1"
