@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
-use switchboard_solana::AttestationQueueAccountData;
+use anchor_lang::{Discriminator, Owner, ZeroCopy};
+use switchboard_solana::{AttestationQueueAccountData, FunctionAccountData, QuoteAccountData};
 
 pub mod actions;
 pub use actions::*;
@@ -22,8 +23,8 @@ pub mod binance_oracle {
     }
 }
 
-#[repr(packed)]
 #[account(zero_copy)]
+#[repr(packed)]
 #[derive(Default, Debug)]
 pub struct ProgramState {
     pub bump: u8,
@@ -32,8 +33,8 @@ pub struct ProgramState {
     pub mr_enclaves: [[u8; 32]; 32],
 }
 
-#[repr(packed)]
 #[account(zero_copy)]
+#[repr(packed)]
 #[derive(Default, Debug)]
 pub struct OracleState {
     pub bump: u8,

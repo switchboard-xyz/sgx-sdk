@@ -30,5 +30,8 @@ default = []
 
 [dependencies]
 anchor-lang = { version = "0.26.0", features = ["init-if-needed"] }
-# switchboard-solana = { path = "../../rust/solana", version = "0.0.1" }
-switchboard-solana = { version = "*" }
+# switchboard-solana = "0.3.8"
+switchboard-solana = { path = "../../../../switchboard/sbv2-solana/rust/switchboard-solana" }
+# getrandom = "0.2"
+# solana-program = "=1.16.0"
+# getrandom = { version = "0.2", features = ["custom"] }

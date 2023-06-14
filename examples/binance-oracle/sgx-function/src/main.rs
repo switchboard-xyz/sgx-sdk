@@ -1,22 +1,12 @@
-// Note: Binance API requires a non-US IP address
+pub mod binance;
+use binance::{fetch_prices, Ticker};
 
-use anchor_lang::prelude::*;
-use anchor_lang::AnchorSerialize;
+pub use switchboard_solana::prelude::*;
+
 use binance_oracle::{self, PushDataParams};
-use serde::Deserialize;
-use solana_sdk::{instruction::Instruction, pubkey::Pubkey};
+
 use std::str::FromStr;
 use std::time::{SystemTime, UNIX_EPOCH};
-use switchboard_solana::{function_verify, generate_signer, FunctionVerifyPubkeys};
-
-#[allow(non_snake_case)]
-#[derive(Deserialize, Clone, Debug)]
-struct Ticker {
-    pub symbol: String,
-    pub weightedAvgPrice: String,
-    pub lastPrice: String,
-    pub volume: String,
-}
 
 #[tokio::main(worker_threads = 12)]
 async fn main() {
@@ -31,19 +21,10 @@ async fn main() {
         Pubkey::find_program_address(&[b"BINANCEORACLE"], &binance_oracle::ID);
 
     let symbols = ["BTCUSDC", "ETHUSDC", "SOLUSDC"];
-    let tickers = reqwest::get(format!(
-        "https://api.binance.com/api/v3/ticker?symbols=[{}]&windowSize=1h",
-        symbols.map(|x| format!("\"{}\"", x)).join(",")
-    ))
-    .await
-    .unwrap()
-    .json::<Vec<Ticker>>()
-    .await
-    .unwrap();
-
+    let tickers: Vec<Ticker> = fetch_prices(symbols.to_vec()).await.unwrap();
     println!("{:#?}", tickers);
 
-    let ixns: Vec<Instruction> = symbols
+    let ixns: Vec<solana_program::instruction::Instruction> = symbols
         .iter()
         .enumerate()
         .map(|(i, s)| {
@@ -57,7 +38,7 @@ async fn main() {
         })
         .collect();
 
-    let result = function_verify(fn_signer, ixns)
+    let result = function_verify("https://api.devnet.solana.com".to_string(), fn_signer, ixns)
         .await
         .expect("failed to run function verify");
 
@@ -94,7 +75,7 @@ fn build_ix(
     ticker: &Ticker,
     fn_accounts: &FunctionVerifyPubkeys,
     fn_signer_pubkey: Pubkey,
-) -> Instruction {
+) -> solana_program::instruction::Instruction {
     let symbol = string_to_bytes(symbol_str);
 
     let (oracle_pubkey, _oracle_bump) =
@@ -103,7 +84,7 @@ fn build_ix(
     let price = ticker.lastPrice.parse::<f64>().unwrap();
     let volume = ticker.volume.parse::<f64>().unwrap();
 
-    Instruction {
+    solana_program::instruction::Instruction {
         program_id: binance_oracle::ID,
         accounts: vec![
             AccountMeta {
@@ -137,12 +118,12 @@ fn build_ix(
                 is_writable: false,
             },
             AccountMeta {
-                pubkey: anchor_lang::solana_program::system_program::ID,
+                pubkey: solana_program::system_program::ID,
                 is_signer: false,
                 is_writable: false,
             },
             AccountMeta {
-                pubkey: anchor_lang::solana_program::sysvar::rent::ID,
+                pubkey: solana_program::sysvar::rent::ID,
                 is_signer: false,
                 is_writable: false,
             },
