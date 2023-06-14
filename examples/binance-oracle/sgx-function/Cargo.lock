@@ -474,7 +474,6 @@ dependencies = [
  "chrono",
  "futures",
  "reqwest",
- "rust_decimal",
  "serde",
  "serde_json",
  "switchboard-solana",

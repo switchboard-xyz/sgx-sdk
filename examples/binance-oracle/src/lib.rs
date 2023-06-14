@@ -1,6 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_lang::{Discriminator, Owner, ZeroCopy};
-use switchboard_solana::{AttestationQueueAccountData, FunctionAccountData, QuoteAccountData};
+use switchboard_solana::AttestationQueueAccountData;
 
 pub mod actions;
 pub use actions::*;
