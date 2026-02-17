@@ -8,7 +8,7 @@
   <p>SDK for working with Switchboard's SGX and serverless functions.</p>
 
   <p>
-    <a href="https://discord.gg/switchboardxyz">
+    <a href="https://discord.gg/TJAv6ZYvPC">
       <img alt="Discord" src="https://img.shields.io/discord/841525135311634443?color=blueviolet&logo=discord&logoColor=white" />
     </a>
     <a href="https://twitter.com/switchboardxyz">
